@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdgeFinder — Sports Betting Odds Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0c10;
+    --surface:   #111318;
+    --border:    #1e2130;
+    --border2:   #252a3a;
+    --text:      #e2e8f0;
+    --muted:     #64748b;
+    --green:     #22c55e;
+    --green-dim: #16a34a22;
+    --red:       #ef4444;
+    --red-dim:   #dc262622;
+    --gold:      #f59e0b;
+    --gold-dim:  #d9770622;
+    --blue:      #3b82f6;
+    --blue-dim:  #2563eb22;
+    --accent:    #6366f1;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: white;
+  }
+  .logo span { color: var(--green); }
+
+  .demo-badge {
+    background: var(--gold-dim);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .refresh-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s;
+  }
+  .refresh-btn:hover { opacity: 0.85; }
+
+  /* ── Layout ── */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr 280px;
+    gap: 0;
+    height: calc(100vh - 57px);
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    padding: 0 18px 12px;
+    text-transform: uppercase;
+  }
+
+  .sport-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sport-btn:hover { color: var(--text); background: var(--border); }
+  .sport-btn.active {
+    color: white;
+    background: var(--blue-dim);
+    border-left-color: var(--blue);
+  }
+
+  .sidebar-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Content ── */
+  .content {
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab {
+    padding: 8px 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: white; border-bottom-color: var(--accent); }
+
+  /* ── Stats Bar ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+  }
+  .stat-value.green { color: var(--green); }
+  .stat-value.gold  { color: var(--gold); }
+
+  /* ── Game Cards ── */
+  .games-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .game-card:hover { border-color: var(--border2); }
+  .game-card.has-arb { border-color: var(--green) !important; }
+
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .game-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sport-tag {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .game-time {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .arb-badge {
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .game-body { padding: 14px 16px; }
+
+  .matchup {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+  }
+  .matchup .vs {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0 8px;
+  }
+
+  .odds-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .odds-team {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .odds-team-name {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .odds-price {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+  }
+  .odds-price.positive { color: var(--green); }
+  .odds-price.negative { color: var(--red); }
+
+  .odds-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .odds-book {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ev-tag {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .ev-tag.pos { background: var(--green-dim); color: var(--green); }
+  .ev-tag.neg { background: var(--red-dim); color: var(--red); }
+
+  .books-count {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Arbitrage Tab ── */
+  .arb-card {
+    background: var(--surface);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .arb-game { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: white; margin-bottom: 10px; }
+  .arb-profit {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .arb-detail { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .arb-legs { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .arb-leg {
+    display: flex;
+    justify-content: space-between;
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .arb-leg-team { color: var(--text); }
+  .arb-leg-odds { color: var(--green); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .arb-leg-book { color: var(--muted); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── EV Tab ── */
+  .ev-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .ev-table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 10px 16px;
+    background: var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .ev-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .ev-row:hover { background: var(--border); }
+  .ev-row:last-child { border-bottom: none; }
+  .ev-positive { color: var(--green); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .ev-game { font-size: 13px; color: var(--text); }
+  .ev-team { font-size: 12px; color: var(--muted); }
+  .ev-sport { font-size: 18px; }
+
+  /* ── Right Panel ── */
+  .right-panel {
+    border-left: 1px solid var(--border);
+    padding: 20px 16px;
+    overflow-y: auto;
+  }
+
+  .panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .alert-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--green);
+  }
+  .alert-type {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .alert-game { font-size: 12px; color: var(--text); margin-bottom: 2px; }
+  .alert-profit { font-size: 13px; font-weight: 700; color: var(--green); font-family: 'Barlow Condensed', monospace; }
+  .alert-time { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+
+  .no-data {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .loading { text-align: center; padding: 60px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Books Comparison Table ── */
+  .books-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .books-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .books-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .books-table tr:last-child td { border-bottom: none; }
+  .best-odds-cell { color: var(--green); font-weight: 700; }
+
+  .scrollable { overflow-x: auto; }
+
+  /* ── Detail Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: white; }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
+  .modal-close:hover { color: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">EDGE<span>FINDER</span></div>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <span class="demo-badge" id="mode-badge">⚡ DEMO MODE</span>
+    <span style="color:var(--muted); font-size:12px; font-family:'JetBrains Mono',monospace;" id="last-update"></span>
+    <button class="refresh-btn" onclick="refreshData()">↺ REFRESH</button>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Sports</div>
+    <button class="sport-btn active" data-sport="all" onclick="selectSport(this, 'all')">🏆 All Sports</button>
+    <button class="sport-btn" data-sport="basketball_nba" onclick="selectSport(this, 'basketball_nba')">🏀 NBA</button>
+    <button class="sport-btn" data-sport="baseball_mlb" onclick="selectSport(this, 'baseball_mlb')">⚾ MLB</button>
+    <button class="sport-btn" data-sport="americanfootball_nfl" onclick="selectSport(this, 'americanfootball_nfl')">🏈 NFL</button>
+    <button class="sport-btn" data-sport="icehockey_nhl" onclick="selectSport(this, 'icehockey_nhl')">🏒 NHL</button>
+    <button class="sport-btn" data-sport="soccer_epl" onclick="selectSport(this, 'soccer_epl')">⚽ EPL</button>
+    <button class="sport-btn" data-sport="golf_pga_tour_winner" onclick="selectSport(this, 'golf_pga_tour_winner')">⛳ PGA Tour</button>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Quick Links</div>
+      <button class="sport-btn" onclick="switchTab('arb')">🟢 Arbitrage</button>
+      <button class="sport-btn" onclick="switchTab('ev')">📈 Best EV</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="content">
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Games Tracked</div>
+        <div class="stat-value" id="stat-games">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Arb Opportunities</div>
+        <div class="stat-value green" id="stat-arbs">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">+EV Bets</div>
+        <div class="stat-value gold" id="stat-ev">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Books Compared</div>
+        <div class="stat-value" id="stat-books">4</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('games')" id="tab-games">ODDS</button>
+      <button class="tab" onclick="switchTab('arb')" id="tab-arb">ARBITRAGE</button>
+      <button class="tab" onclick="switchTab('ev')" id="tab-ev">BEST EV</button>
+    </div>
+
+    <!-- Games Tab -->
+    <div id="panel-games">
+      <div class="games-grid" id="games-container">
+        <div class="loading">Loading odds data...</div>
+      </div>
+    </div>
+
+    <!-- Arbitrage Tab -->
+    <div id="panel-arb" style="display:none;">
+      <div id="arb-container"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- EV Tab -->
+    <div id="panel-ev" style="display:none;">
+      <div class="ev-table">
+        <div class="ev-table-header">
+          <span>Game</span>
+          <span>Team</span>
+          <span>Odds</span>
+          <span>Book</span>
+          <span>EV</span>
+        </div>
+        <div id="ev-container"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right Panel: Alerts -->
+  <aside class="right-panel">
+    <div class="panel-title">🔔 Arb Alerts</div>
+    <div id="alerts-container"><div class="no-data">No alerts yet</div></div>
+
+    <div class="panel-title" style="margin-top:24px;">📖 Data Structures</div>
+    <div style="font-size:11px; color:var(--muted); line-height:1.8; font-family:'JetBrains Mono',monospace;">
+      <div style="margin-bottom:8px;"><span style="color:var(--blue);">Hash Map</span><br>O(1) game lookup by ID</div>
+      <div style="margin-bottom:8px;"><span style="color:var(--gold);">Min-Heap</span><br>Best odds ranking per team</div>
+      <div style="margin-bottom:8px;"><span style="color:var(--green);">Stack</span><br>LIFO alert history</div>
+      <div><span style="color:var(--accent);">Sorted List</span><br>Line movement history</div>
+    </div>
+  </aside>
+</div>
+
+<!-- Game Detail Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+let currentSport = 'all';
+let currentTab   = 'games';
+let gamesData    = [];
+
+// ── Fetch & Render ──────────────────────────────────────────
+async function loadGames(sport) {
+  document.getElementById('games-container').innerHTML = '<div class="loading">Fetching odds...</div>';
+  try {
+    const res  = await fetch(`/api/games?sport=${sport}`);
+    const data = await res.json();
+    gamesData  = data.games || [];
+    renderGames(gamesData);
+    updateStats(gamesData);
+    document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    if (!data.demo) document.getElementById('mode-badge').textContent = '🟢 LIVE';
+  } catch(e) {
+    document.getElementById('games-container').innerHTML = '<div class="loading">Error loading data</div>';
+  }
+}
+
+async function loadArbs() {
+  document.getElementById('arb-container').innerHTML = '<div class="loading">Scanning for arbitrage...</div>';
+  const res  = await fetch('/api/arbitrage');
+  const data = await res.json();
+  renderArbs(data.arbs || []);
+}
+
+async function loadEV() {
+  document.getElementById('ev-container').innerHTML = '<div class="loading">Calculating EV...</div>';
+  const res  = await fetch('/api/best_ev');
+  const data = await res.json();
+  renderEV(data.top_ev || []);
+}
+
+async function loadAlerts() {
+  const res  = await fetch('/api/alerts');
+  const data = await res.json();
+  renderAlerts(data.alerts || []);
+}
+
+// ── Render Games ────────────────────────────────────────────
+function renderGames(games) {
+  const container = document.getElementById('games-container');
+  if (!games.length) {
+    container.innerHTML = '<div class="no-data">No games found for this sport</div>';
+    return;
+  }
+  container.innerHTML = games.map(g => gameCard(g)).join('');
+}
+
+function gameCard(g) {
+  const teams = Object.keys(g.best_odds);
+  const arbBadge = g.arb
+    ? `<span class="arb-badge">ARB +${g.arb.profit_pct}%</span>`
+    : '';
+
+  const oddsHTML = teams.slice(0,2).map(team => {
+    const info = g.best_odds[team];
+    const sign = info.price > 0 ? 'positive' : 'negative';
+    const priceStr = info.price > 0 ? `+${info.price}` : `${info.price}`;
+    const ev    = g.ev?.[team] ?? 0;
+    const evTag = `<span class="ev-tag ${ev >= 0 ? 'pos' : 'neg'}">${ev >= 0 ? '+' : ''}${ev}%</span>`;
+    return `
+      <div class="odds-team">
+        <div class="odds-team-name">${team}</div>
+        <div class="odds-price ${sign}">${priceStr}</div>
+        <div class="odds-meta">
+          <span class="odds-book">${info.book}</span>
+          ${evTag}
+        </div>
+      </div>`;
+  }).join('');
+
+  const commenceDate = g.commence_time
+    ? new Date(g.commence_time).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})
+    : '';
+
+  return `
+  <div class="game-card ${g.arb ? 'has-arb' : ''}" onclick="openGame('${g.id}')">
+    <div class="game-header">
+      <div class="game-meta">
+        <span class="sport-tag">${g.sport}</span>
+        <span class="game-time">${commenceDate}</span>
+      </div>
+      ${arbBadge}
+    </div>
+    <div class="game-body">
+      <div class="matchup">${g.away}<span class="vs">@</span>${g.home}</div>
+      <div class="odds-row">${oddsHTML}</div>
+      <div class="books-count">📚 ${g.num_books} books compared</div>
+    </div>
+  </div>`;
+}
+
+// ── Render Arbitrage ────────────────────────────────────────
+function renderArbs(arbs) {
+  const container = document.getElementById('arb-container');
+  if (!arbs.length) {
+    container.innerHTML = '<div class="no-data">No arbitrage opportunities found right now.<br><br>This is normal — books are usually efficient.<br>Check back after odds refresh.</div>';
+    return;
+  }
+  container.innerHTML = arbs.map(g => {
+    const legs = g.arb?.outcomes?.map(o =>
+      `<div class="arb-leg">
+        <span class="arb-leg-team">${o.name}</span>
+        <span class="arb-leg-book">${o.book}</span>
+        <span class="arb-leg-odds">${o.price > 0 ? '+' : ''}${o.price}</span>
+      </div>`
+    ).join('') || '';
+    return `
+    <div class="arb-card">
+      <div class="arb-game">${g.away} @ ${g.home}</div>
+      <div class="arb-profit">+${g.arb.profit_pct}% guaranteed profit</div>
+      <div class="arb-detail">Total implied prob: ${g.arb.total_implied}% | ${g.sport}</div>
+      <div class="arb-legs">${legs}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Render EV ───────────────────────────────────────────────
+function renderEV(bets) {
+  const container = document.getElementById('ev-container');
+  if (!bets.length) {
+    container.innerHTML = '<div class="no-data" style="padding:20px;">No positive EV bets found</div>';
+    return;
+  }
+  container.innerHTML = bets.map(b => `
+    <div class="ev-row">
+      <div>
+        <div class="ev-game">${b.game}</div>
+      </div>
+      <div style="color:var(--text); font-size:12px;">${b.team}</div>
+      <div style="font-family:'JetBrains Mono',monospace; color:${b.odds > 0 ? 'var(--green)' : 'var(--red)'};">
+        ${b.odds > 0 ? '+' : ''}${b.odds}
+      </div>
+      <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace;">${b.book}</div>
+      <div class="ev-positive">+${b.ev}%</div>
+    </div>
+  `).join('');
+}
+
+// ── Render Alerts ───────────────────────────────────────────
+function renderAlerts(alerts) {
+  const container = document.getElementById('alerts-container');
+  if (!alerts.length) {
+    container.innerHTML = '<div class="no-data">No alerts yet</div>';
+    return;
+  }
+  container.innerHTML = alerts.map(a => `
+    <div class="alert-item">
+      <div class="alert-type">${a.type}</div>
+      <div class="alert-game">${a.game}</div>
+      <div class="alert-profit">+${a.profit}% profit</div>
+      <div class="alert-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+// ── Game Detail Modal ────────────────────────────────────────
+async function openGame(gameId) {
+  const res  = await fetch(`/api/game/${gameId}`);
+  const data = await res.json();
+  const g    = data.game;
+  if (!g) return;
+
+  document.getElementById('modal-title').textContent = `${g.away} @ ${g.home}`;
+
+  const teams = Object.keys(g.best_odds);
+  // Build books comparison table
+  const allTeams = [...new Set(g.books_table.flatMap(r => Object.keys(r).filter(k => k !== 'book')))];
+  const tableHeader = `<tr><th>Book</th>${allTeams.map(t => `<th>${t}</th>`).join('')}</tr>`;
+
+  // Find best odds per team for highlighting
+  const bestPerTeam = {};
+  for (const team of allTeams) {
+    let best = -Infinity;
+    for (const row of g.books_table) {
+      if (row[team] !== undefined) {
+        const val = row[team];
+        const dec = val > 0 ? val/100+1 : 100/Math.abs(val)+1;
+        if (dec > best) { best = dec; bestPerTeam[team] = val; }
+      }
+    }
+  }
+
+  const tableRows = g.books_table.map(row =>
+    `<tr>
+      <td style="color:var(--text); font-weight:600;">${row.book}</td>
+      ${allTeams.map(t => {
+        const val = row[t];
+        if (val === undefined) return '<td style="color:var(--muted);">—</td>';
+        const isBest = val === bestPerTeam[t];
+        const cls = isBest ? 'best-odds-cell' : '';
+        return `<td class="${cls}">${val > 0 ? '+' : ''}${val}</td>`;
+      }).join('')}
+    </tr>`
+  ).join('');
+
+  document.getElementById('modal-body').innerHTML = `
+    <div style="margin-bottom:16px; font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace;">
+      ${g.sport} • ${g.commence_time ? new Date(g.commence_time).toLocaleString() : ''}
+    </div>
+    ${g.arb ? `<div class="arb-card" style="margin-bottom:16px;">
+      <div style="color:var(--green); font-weight:700; font-size:18px; font-family:'Barlow Condensed',sans-serif;">
+        🟢 ARBITRAGE: +${g.arb.profit_pct}% guaranteed profit
+      </div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">Implied probability total: ${g.arb.total_implied}%</div>
+    </div>` : ''}
+    <div style="margin-bottom:12px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px;">BOOK COMPARISON (green = best odds)</div>
+    <div class="scrollable">
+      <table class="books-table" style="background:var(--bg);">
+        ${tableHeader}${tableRows}
+      </table>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
+}
+
+// ── UI Controls ──────────────────────────────────────────────
+function selectSport(btn, sport) {
+  document.querySelectorAll('.sport-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSport = sport;
+  switchTab('games');
+  loadGames(sport);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['games','arb','ev'].forEach(t => {
+    document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.getElementById(`tab-${t}`)?.classList.toggle('active', t === tab);
+  });
+  if (tab === 'arb') loadArbs();
+  if (tab === 'ev')  loadEV();
+  loadAlerts();
+}
+
+function updateStats(games) {
+  document.getElementById('stat-games').textContent = games.length;
+  document.getElementById('stat-arbs').textContent  = games.filter(g => g.arb).length;
+  const evCount = games.reduce((n, g) => n + Object.values(g.ev || {}).filter(v => v > 0).length, 0);
+  document.getElementById('stat-ev').textContent = evCount;
+}
+
+function refreshData() {
+  loadGames(currentSport);
+  loadAlerts();
+  if (currentTab === 'arb') loadArbs();
+  if (currentTab === 'ev')  loadEV();
+}
+
+// ── Init ─────────────────────────────────────────────────────
+loadGames('all');
+loadAlerts();
+setInterval(refreshData, 60000);  // auto-refresh every 60s
+</script>
+</body>
+</html>
