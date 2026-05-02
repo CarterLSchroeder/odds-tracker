@@ -1,0 +1,12 @@
+
+==================================================
+  🎰  EdgeFinder — Sports Betting Tracker
+==================================================
+  Mode: ⚡ DEMO
+  http://localhost:5000  |  Ctrl+C to stop
+
+ * Serving Flask app 'app'
+ * Debug mode: off
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+On macOS, try searching for and disabling 'AirPlay Receiver' in System Settings.

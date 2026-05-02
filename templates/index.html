@@ -346,20 +346,28 @@
         <!-- Builder -->
         <div class="parlay-builder">
           <div class="parlay-section-title">Build Your Parlay</div>
-          <div class="parlay-section-sub">Enter each leg — team name and American odds</div>
-          <div id="leg-inputs">
-            <div class="leg-input-row">
-              <input class="leg-label-input" placeholder="Team / Description" id="leg-label-0">
-              <input class="leg-odds-input" placeholder="Odds" id="leg-odds-0" type="number">
-              <button class="remove-leg-btn" onclick="removeLeg(0)">×</button>
-            </div>
-            <div class="leg-input-row">
-              <input class="leg-label-input" placeholder="Team / Description" id="leg-label-1">
-              <input class="leg-odds-input" placeholder="Odds" id="leg-odds-1" type="number">
-              <button class="remove-leg-btn" onclick="removeLeg(1)">×</button>
+          <div class="parlay-section-sub">Pick league → game → line for each leg</div>
+          
+          <!-- Leg selector -->
+          <div style="margin-bottom:16px;">
+            <div class="leg-label-input" style="background:var(--bg); border:1px solid var(--border2); padding:8px 12px; border-radius:6px; display:grid; grid-template-columns:1fr 1fr 1fr 32px; gap:8px; align-items:center;">
+              <select id="league-select" style="background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:6px; border-radius:4px; font-size:12px; font-family:'Barlow',sans-serif;" onchange="onLeagueChange()">
+                <option value="">Select League</option>
+              </select>
+              <select id="game-select" style="background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:6px; border-radius:4px; font-size:12px; font-family:'Barlow',sans-serif;" onchange="onGameChange()">
+                <option value="">Select Game</option>
+              </select>
+              <select id="line-select" style="background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:6px; border-radius:4px; font-size:12px; font-family:'Barlow',sans-serif;" onchange="onLineSelect()">
+                <option value="">Select Line</option>
+              </select>
+              <button class="remove-leg-btn" onclick="addLegFromSelect()" style="width:100%; background:var(--accent); border:none; color:white;">+</button>
             </div>
           </div>
-          <button class="add-leg-btn" onclick="addLeg()">+ Add Another Leg</button>
+
+          <!-- Legs display -->
+          <div id="leg-inputs" style="margin-bottom:8px;">
+          </div>
+          
           <div class="parlay-stake-row">
             <span class="stake-label">STAKE ($)</span>
             <input class="parlay-stake-input" type="number" id="parlay-stake" value="100" min="1">
@@ -389,6 +397,15 @@
 let currentView   = 'odds';
 let currentSport  = 'all';
 let currentFilter = 'all';
+
+// Sports mapping from backend
+const SPORTS = {
+  "basketball_nba":       "🏀 NBA",
+  "baseball_mlb":         "⚾ MLB",
+  "golf_pga_tour_winner": "⛳ PGA Tour",
+  "icehockey_nhl":        "🏒 NHL",
+  "americanfootball_nfl": "🏈 NFL",
+};
 
 // ── Helpers ─────────────────────────────────────────────────
 const fmt  = p => p > 0 ? `+${p}` : `${p}`;
@@ -749,8 +766,211 @@ function refreshAll() {
   updateStats([]);
 }
 
+// ── Parlay Builder ──────────────────────────────────────────
+let currentLeagueGames = [];
+let parlayLegs = [];
+
+function initParlayView() {
+  // Populate league dropdown
+  const leagueSelect = document.getElementById('league-select');
+  leagueSelect.innerHTML = '<option value="">Select League</option>';
+  Object.entries(SPORTS).forEach(([key, label]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = label;
+    leagueSelect.appendChild(opt);
+  });
+}
+
+async function onLeagueChange() {
+  const league = document.getElementById('league-select').value;
+  const gameSelect = document.getElementById('game-select');
+  gameSelect.innerHTML = '<option value="">Select Game</option>';
+  document.getElementById('line-select').innerHTML = '<option value="">Select Line</option>';
+  
+  if (!league) return;
+  
+  const res = await fetch(`/api/games?sport=${league}`);
+  const data = await res.json();
+  currentLeagueGames = data.games || [];
+  
+  currentLeagueGames.forEach((game, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `${game.away} @ ${game.home}`;
+    gameSelect.appendChild(opt);
+  });
+}
+
+function onGameChange() {
+  const gameIdx = document.getElementById('game-select').value;
+  const lineSelect = document.getElementById('line-select');
+  lineSelect.innerHTML = '<option value="">Select Line</option>';
+  
+  if (gameIdx === '') return;
+  
+  const game = currentLeagueGames[gameIdx];
+  const bestOdds = game.best_odds || {};
+  
+  Object.entries(bestOdds).forEach(([team, info]) => {
+    const opt = document.createElement('option');
+    opt.value = JSON.stringify({team, odds: info.price, label: `${team} ${info.price > 0 ? '+' : ''}${info.price}`});
+    opt.textContent = `${team} (${info.price > 0 ? '+' : ''}${info.price})`;
+    lineSelect.appendChild(opt);
+  });
+}
+
+function onLineSelect() {
+  // Just select, don't add yet - user clicks the + button
+}
+
+function addLegFromSelect() {
+  const lineVal = document.getElementById('line-select').value;
+  if (!lineVal) return;
+  
+  const leg = JSON.parse(lineVal);
+  parlayLegs.push(leg);
+  
+  document.getElementById('league-select').value = '';
+  document.getElementById('game-select').innerHTML = '<option value="">Select Game</option>';
+  document.getElementById('line-select').innerHTML = '<option value="">Select Line</option>';
+  
+  renderParlayLegs();
+}
+
+function removeLeg(idx) {
+  parlayLegs.splice(idx, 1);
+  renderParlayLegs();
+}
+
+function renderParlayLegs() {
+  const container = document.getElementById('leg-inputs');
+  container.innerHTML = parlayLegs.map((leg, idx) => `
+    <div class="leg-input-row">
+      <div class="leg-label-input" style="background:var(--surface2); padding:8px 12px; border-radius:6px; color:var(--text);">${leg.label}</div>
+      <div class="leg-odds-input" style="background:var(--surface2); padding:8px 12px; border-radius:6px; color:var(--green);">${leg.odds}</div>
+      <button class="remove-leg-btn" onclick="removeLeg(${idx})">×</button>
+    </div>
+  `).join('');
+}
+
+async function calcParlay() {
+  if (parlayLegs.length < 2) {
+    alert('Add at least 2 legs to your parlay');
+    return;
+  }
+  
+  const stake = parseFloat(document.getElementById('parlay-stake').value) || 100;
+  
+  const legs = parlayLegs.map(leg => ({
+    odds: leg.odds,
+    label: leg.label
+  }));
+  
+  try {
+    const res = await fetch('/api/parlay_ev', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({legs, stake})
+    });
+    const data = await res.json();
+    renderParlayResults(data);
+  } catch (e) {
+    alert('Error calculating parlay: ' + e.message);
+  }
+}
+
+function renderParlayResults(data) {
+  const verdictClass = data.verdict.toLowerCase();
+  const verdictColor = verdictClass === 'avoid' ? 'red' : verdictClass === 'marginal' ? 'gold' : 'green';
+  
+  const legsBreakdown = data.legs.map(leg => `
+    <div class="leg-result-row">
+      <div class="leg-result-name">${leg.label}</div>
+      <div class="leg-result-right">
+        <span class="leg-result-odds">${leg.odds}</span>
+        <span class="leg-result-prob">${leg.raw_prob}%</span>
+      </div>
+    </div>
+  `).join('');
+  
+  const resultsHTML = `
+    <div class="verdict-banner ${verdictClass}">
+      <div class="verdict-word ${verdictClass}">${data.verdict}</div>
+      <div class="verdict-sub">${data.ev_pct > 0 ? '+' : ''}${data.ev_pct}% EV | ${data.house_edge}% House Edge</div>
+    </div>
+    
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="result-box-label">Your Prob</div>
+        <div class="result-box-val">${data.true_parlay_prob}%</div>
+        <div class="result-box-sub">Real odds: ${data.true_fair_american}</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Book Pays</div>
+        <div class="result-box-val">${data.book_american}</div>
+        <div class="result-box-sub">Underpaying by ${Math.abs(data.payout_diff)}</div>
+      </div>
+    </div>
+    
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="result-box-label">Win Payout</div>
+        <div class="result-box-val" style="color:var(--green);">$${data.book_payout}</div>
+        <div class="result-box-sub">Fair: $${data.fair_payout}</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Expected Value</div>
+        <div class="result-box-val ${data.ev_pct > 0 ? 'green' : 'red'}">${data.ev_pct > 0 ? '+' : ''}$${data.ev}</div>
+        <div class="result-box-sub">${data.ev_pct > 0 ? '+' : ''}${data.ev_pct}% per bet</div>
+      </div>
+    </div>
+    
+    <div class="legs-breakdown">
+      <div class="legs-breakdown-title">Leg Analysis</div>
+      ${legsBreakdown}
+    </div>
+    
+    <div class="payout-compare">
+      <div class="payout-compare-row">
+        <span class="payout-label">Stake</span>
+        <span class="payout-val">$${data.stake}</span>
+      </div>
+      <div class="payout-compare-row">
+        <span class="payout-label">Book Payout (if win)</span>
+        <span class="payout-val">$${data.book_payout}</span>
+      </div>
+      <div class="payout-compare-row">
+        <span class="payout-label">Fair Payout (if win)</span>
+        <span class="payout-val" style="color:var(--gold);">$${data.fair_payout}</span>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('parlay-results-body').innerHTML = resultsHTML;
+}
+
+// Old leg management (no longer used but keeping for reference)
+function addLeg() {
+  const count = document.querySelectorAll('.leg-input-row').length;
+  const row = document.createElement('div');
+  row.className = 'leg-input-row';
+  row.innerHTML = `
+    <input class="leg-label-input" placeholder="Team / Description" id="leg-label-${count}">
+    <input class="leg-odds-input" placeholder="Odds" id="leg-odds-${count}" type="number">
+    <button class="remove-leg-btn" onclick="removeLegOld(${count})">×</button>
+  `;
+  document.getElementById('leg-inputs').appendChild(row);
+}
+
+function removeLegOld(idx) {
+  const row = document.getElementById(`leg-label-${idx}`).closest('.leg-input-row');
+  row.remove();
+}
+
 // ── Init ─────────────────────────────────────────────────────
 loadGames();
+initParlayView();
 setInterval(loadGames, 60000);
 </script>
 </body>
