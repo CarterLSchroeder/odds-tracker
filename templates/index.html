@@ -7,177 +7,227 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0c10; --surface: #111318; --surface2: #161920;
-    --border: #1e2130; --border2: #252a3a;
-    --text: #e2e8f0; --muted: #64748b;
-    --green: #22c55e; --green-dim: #16a34a22;
-    --red: #ef4444; --red-dim: #dc262622;
-    --gold: #f59e0b; --gold-dim: #d9770622;
-    --blue: #3b82f6; --blue-dim: #2563eb22;
-    --accent: #6366f1; --accent-dim: #6366f122;
+    --bg:#0a0c10; --surface:#111318; --surface2:#161920;
+    --border:#1e2130; --border2:#252a3a;
+    --text:#e2e8f0; --muted:#64748b;
+    --green:#22c55e; --green-dim:#16a34a18;
+    --red:#ef4444; --red-dim:#dc262618;
+    --gold:#f59e0b; --gold-dim:#d9770618;
+    --blue:#3b82f6; --blue-dim:#2563eb18;
+    --accent:#6366f1;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:'Barlow',sans-serif; font-size:14px; }
+  body { background:var(--bg); color:var(--text); font-family:'Barlow',sans-serif; font-size:14px; min-height:100vh; }
 
-  /* Header */
-  header { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid var(--border); background:var(--surface); position:sticky; top:0; z-index:100; }
-  .logo { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:800; letter-spacing:1px; color:white; }
+  /* ── Header ── */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 28px; border-bottom:1px solid var(--border);
+    background:var(--surface); position:sticky; top:0; z-index:100;
+  }
+  .logo { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:800; color:white; letter-spacing:1px; }
   .logo span { color:var(--green); }
   .header-right { display:flex; gap:10px; align-items:center; }
-  .demo-badge { background:var(--gold-dim); border:1px solid var(--gold); color:var(--gold); padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; }
-  .refresh-btn { background:var(--accent); color:white; border:none; padding:7px 16px; border-radius:6px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:14px; transition:opacity 0.2s; }
+  .mode-badge { padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; background:var(--gold-dim); border:1px solid var(--gold); color:var(--gold); }
+  .mode-badge.live { background:var(--green-dim); border-color:var(--green); color:var(--green); }
+  .last-update { color:var(--muted); font-size:11px; font-family:'JetBrains Mono',monospace; }
+  .refresh-btn { background:var(--accent); color:white; border:none; padding:7px 16px; border-radius:6px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:14px; letter-spacing:0.5px; }
   .refresh-btn:hover { opacity:0.85; }
 
-  /* Layout */
-  .main-layout { display:grid; grid-template-columns:200px 1fr 260px; height:calc(100vh - 53px); }
+  /* ── Layout ── */
+  .layout { display:grid; grid-template-columns:200px 1fr; min-height:calc(100vh - 57px); }
 
-  /* Sidebar */
-  .sidebar { border-right:1px solid var(--border); padding:16px 0; overflow-y:auto; }
+  /* ── Sidebar ── */
+  .sidebar { border-right:1px solid var(--border); padding:20px 0; }
   .sidebar-label { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; padding:0 16px 10px; }
-  .sport-btn { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; background:none; border:none; color:var(--muted); cursor:pointer; font-family:'Barlow',sans-serif; font-size:13px; font-weight:500; text-align:left; transition:all 0.15s; border-left:3px solid transparent; }
+  .nav-btn { display:flex; align-items:center; gap:10px; width:100%; padding:11px 16px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; font-weight:500; text-align:left; transition:all 0.15s; border-left:3px solid transparent; font-family:'Barlow',sans-serif; }
+  .nav-btn:hover { color:var(--text); background:var(--border); }
+  .nav-btn.active { color:white; background:var(--blue-dim); border-left-color:var(--blue); }
+  .nav-divider { margin:12px 0; border-top:1px solid var(--border); }
+  .sport-btn { display:flex; align-items:center; gap:8px; width:100%; padding:9px 16px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; text-align:left; transition:all 0.15s; border-left:3px solid transparent; font-family:'Barlow',sans-serif; }
   .sport-btn:hover { color:var(--text); background:var(--border); }
   .sport-btn.active { color:white; background:var(--blue-dim); border-left-color:var(--blue); }
-  .sidebar-divider { margin:16px 0; border-top:1px solid var(--border); }
 
-  /* Content */
-  .content { overflow-y:auto; padding:18px 20px; }
+  /* ── Content ── */
+  .content { padding:24px 28px; overflow-y:auto; }
 
-  /* Tabs */
-  .tabs { display:flex; gap:2px; margin-bottom:16px; border-bottom:1px solid var(--border); }
-  .tab { padding:8px 16px; background:none; border:none; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; letter-spacing:0.5px; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s; }
-  .tab:hover { color:var(--text); }
-  .tab.active { color:white; border-bottom-color:var(--accent); }
-
-  /* Stats bar */
-  .stats-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
-  .stat-label { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
-  .stat-value { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; color:white; }
+  /* ── Stats bar ── */
+  .stats-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+  .stat-label { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+  .stat-value { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:700; color:white; }
   .stat-value.green { color:var(--green); }
   .stat-value.gold  { color:var(--gold); }
+  .stat-sub { font-size:11px; color:var(--muted); margin-top:3px; font-family:'JetBrains Mono',monospace; }
 
-  /* Filter & Sort bar */
-  .controls-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
-  .controls-label { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:1px; }
-  .filter-btn { padding:5px 12px; border-radius:20px; border:1px solid var(--border2); background:none; color:var(--muted); cursor:pointer; font-size:12px; font-weight:500; transition:all 0.15s; }
-  .filter-btn:hover { border-color:var(--accent); color:var(--text); }
-  .filter-btn.active { background:var(--accent-dim); border-color:var(--accent); color:white; }
+  /* ── Section header ── */
+  .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .section-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; color:white; }
+  .section-sub { font-size:12px; color:var(--muted); }
+  .filter-row { display:flex; gap:6px; align-items:center; }
+  .filter-chip { padding:5px 12px; border-radius:20px; border:1px solid var(--border2); background:none; color:var(--muted); cursor:pointer; font-size:12px; transition:all 0.15s; font-family:'Barlow',sans-serif; }
+  .filter-chip:hover { border-color:var(--accent); color:var(--text); }
+  .filter-chip.active { background:var(--blue-dim); border-color:var(--blue); color:white; }
   .sort-select { background:var(--surface); border:1px solid var(--border2); color:var(--text); padding:5px 10px; border-radius:6px; font-size:12px; font-family:'Barlow',sans-serif; cursor:pointer; }
-  .divider-dot { color:var(--border2); }
 
-  /* Game cards */
-  .games-grid { display:flex; flex-direction:column; gap:10px; }
-  .game-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; cursor:pointer; transition:border-color 0.2s; }
+  /* ── Game Card ── */
+  .games-list { display:flex; flex-direction:column; gap:12px; }
+  .game-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:border-color 0.2s; cursor:pointer; }
   .game-card:hover { border-color:var(--border2); }
-  .game-card.has-arb { border-color:var(--green) !important; }
+  .game-card.has-arb { border-color:var(--green); }
 
-  .game-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); }
-  .game-meta { display:flex; align-items:center; gap:8px; }
-  .sport-tag { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
-  .game-time { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
-  .badge-row { display:flex; gap:6px; }
-  .arb-badge { background:var(--green-dim); border:1px solid var(--green); color:var(--green); padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; animation:pulse 2s infinite; }
-  .ev-badge  { background:var(--gold-dim);  border:1px solid var(--gold);  color:var(--gold);  padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.6} }
+  .card-header { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; border-bottom:1px solid var(--border); background:var(--surface2); }
+  .card-sport { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .card-time  { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .card-badges { display:flex; gap:6px; }
+  .badge { padding:3px 9px; border-radius:4px; font-size:10px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .badge.arb { background:var(--green-dim); border:1px solid var(--green); color:var(--green); animation:pulse 2s infinite; }
+  .badge.ev  { background:var(--gold-dim);  border:1px solid var(--gold);  color:var(--gold); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
-  .game-body { padding:12px 14px; }
-  .matchup { font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; color:white; margin-bottom:12px; }
-  .matchup .vs { color:var(--muted); font-size:13px; font-weight:400; margin:0 6px; }
+  .card-body { padding:14px 16px; }
+  .matchup { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; color:white; margin-bottom:14px; }
+  .matchup .vs { color:var(--muted); font-size:14px; font-weight:400; margin:0 8px; }
 
-  /* Team comparison grid */
-  .teams-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .team-panel { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
-  .team-name-sm { font-size:11px; color:var(--muted); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* Odds comparison table inside card */
+  .odds-compare { width:100%; border-collapse:collapse; }
+  .odds-compare th { text-align:left; padding:6px 10px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  .odds-compare td { padding:8px 10px; border-bottom:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .odds-compare tr:last-child td { border-bottom:none; }
+  .odds-compare tr:hover td { background:var(--surface2); }
+  .best-odds-cell { font-weight:700; }
+  .best-odds-cell.pos { color:var(--green); }
+  .best-odds-cell.neg { color:var(--text); }
+  .normal-cell.pos { color:var(--green); opacity:0.7; }
+  .normal-cell.neg { color:var(--muted); }
+  .book-col { color:var(--text); font-weight:500; }
+  .savings-pill { display:inline-block; background:var(--gold-dim); border:1px solid var(--gold); color:var(--gold); padding:1px 6px; border-radius:3px; font-size:10px; font-weight:600; }
+  .ev-pill { display:inline-block; padding:1px 6px; border-radius:3px; font-size:10px; font-weight:600; }
+  .ev-pill.pos { background:var(--green-dim); color:var(--green); }
+  .ev-pill.neg { background:var(--red-dim); color:var(--red); }
 
-  /* Odds */
-  .odds-price { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; }
-  .odds-price.pos { color:var(--green); }
-  .odds-price.neg { color:var(--red); }
-  .odds-row-meta { display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
-  .odds-book { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
-  .ev-tag { font-size:10px; font-weight:600; font-family:'JetBrains Mono',monospace; padding:1px 5px; border-radius:3px; }
-  .ev-tag.pos { background:var(--green-dim); color:var(--green); }
-  .ev-tag.neg { background:var(--red-dim);   color:var(--red); }
+  .card-footer { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--surface2); border-top:1px solid var(--border); font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .best-line-callout { display:flex; gap:16px; }
+  .best-line-item { display:flex; flex-direction:column; gap:1px; }
+  .best-line-team { font-size:10px; color:var(--muted); }
+  .best-line-val { font-size:13px; font-weight:700; color:var(--green); }
+  .best-line-book { font-size:10px; color:var(--muted); }
 
-  /* Smart probability bar */
-  .prob-section { margin-top:8px; }
-  .prob-label { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:3px; display:flex; justify-content:space-between; }
-  .prob-bar-bg { background:var(--border); border-radius:3px; height:5px; overflow:hidden; }
-  .prob-bar-fill { height:100%; border-radius:3px; transition:width 0.4s ease; }
-  .prob-smart { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; margin-bottom:3px; }
+  /* ── Arbitrage Panel ── */
+  .arb-hero { background:var(--surface); border:1px solid var(--green); border-radius:12px; padding:20px; margin-bottom:12px; }
+  .arb-title { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:white; margin-bottom:4px; }
+  .arb-profit { font-family:'Barlow Condensed',sans-serif; font-size:40px; font-weight:800; color:var(--green); line-height:1; }
+  .arb-sub { font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:4px; }
 
-  /* Form dots */
-  .form-row { display:flex; gap:3px; margin-top:6px; }
-  .form-dot { width:16px; height:16px; border-radius:50%; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; color:white; font-family:'JetBrains Mono',monospace; }
-  .form-dot.W { background:var(--green); }
-  .form-dot.L { background:var(--red); }
-  .form-dot.T { background:var(--muted); }
+  .arb-calc { margin-top:16px; }
+  .arb-calc-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .arb-calc-label { font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .stake-input { background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:6px 10px; border-radius:6px; font-size:14px; font-family:'JetBrains Mono',monospace; width:100px; }
+  .calc-btn { background:var(--green); color:black; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; }
 
-  /* Efficiency mini stats */
-  .eff-row { display:flex; gap:8px; margin-top:6px; }
-  .eff-stat { background:var(--surface2); border-radius:4px; padding:3px 7px; font-size:10px; font-family:'JetBrains Mono',monospace; }
-  .eff-stat span { color:var(--muted); }
+  .arb-legs { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+  .arb-leg { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; align-items:center; gap:10px; }
+  .leg-team { font-size:14px; color:var(--text); font-weight:600; }
+  .leg-book { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .leg-odds { font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700; color:var(--green); }
+  .leg-stake { font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--gold); font-weight:600; }
+  .leg-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; margin-bottom:2px; }
 
-  /* H2H badge */
-  .h2h-badge { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:4px; }
-  .h2h-badge strong { color:var(--text); }
+  .arb-result { background:var(--green-dim); border:1px solid var(--green); border-radius:8px; padding:12px 14px; margin-top:10px; display:flex; justify-content:space-between; align-items:center; }
+  .arb-result-label { font-size:12px; color:var(--green); font-family:'JetBrains Mono',monospace; }
+  .arb-result-profit { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:800; color:var(--green); }
 
-  .books-count { font-size:10px; color:var(--muted); margin-top:8px; font-family:'JetBrains Mono',monospace; }
+  /* ── Best Lines Panel ── */
+  .best-lines-table { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .bl-header { display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr; padding:10px 16px; background:var(--surface2); font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  .bl-row { display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr; padding:12px 16px; border-bottom:1px solid var(--border); align-items:center; transition:background 0.15s; }
+  .bl-row:hover { background:var(--surface2); }
+  .bl-row:last-child { border-bottom:none; }
+  .bl-game { font-size:12px; color:var(--text); }
+  .bl-sport { font-size:10px; color:var(--muted); margin-top:2px; font-family:'JetBrains Mono',monospace; }
+  .bl-team { font-size:13px; color:var(--text); font-weight:500; }
+  .bl-odds { font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700; }
+  .bl-odds.pos { color:var(--green); }
+  .bl-odds.neg { color:var(--text); }
+  .bl-book { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .bl-savings { color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; }
+  .bl-ev { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; }
+  .bl-ev.pos { color:var(--green); }
+  .bl-ev.neg { color:var(--muted); }
 
-  /* Arbitrage tab */
-  .arb-card { background:var(--surface); border:1px solid var(--green); border-radius:10px; padding:16px 18px; margin-bottom:10px; }
-  .arb-game { font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; color:white; margin-bottom:8px; }
-  .arb-profit { font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:800; color:var(--green); }
-  .arb-detail { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:2px; }
-  .arb-legs { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
-  .arb-leg { display:flex; justify-content:space-between; background:var(--bg); border-radius:6px; padding:8px 12px; }
-  .arb-leg-team { color:var(--text); font-size:13px; }
-  .arb-leg-right { display:flex; gap:10px; align-items:center; }
-  .arb-leg-book { color:var(--muted); font-size:10px; font-family:'JetBrains Mono',monospace; }
-  .arb-leg-odds { color:var(--green); font-family:'JetBrains Mono',monospace; font-weight:600; font-size:13px; }
+  .no-data { color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; text-align:center; padding:50px 20px; line-height:1.8; }
+  .loading { text-align:center; padding:60px; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:13px; }
 
-  /* EV tab */
-  .ev-table { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-  .ev-header { display:grid; grid-template-columns:2.5fr 1fr 1fr 1fr 1fr; padding:9px 14px; background:var(--border); font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
-  .ev-row { display:grid; grid-template-columns:2.5fr 1fr 1fr 1fr 1fr; padding:11px 14px; border-bottom:1px solid var(--border); align-items:center; transition:background 0.15s; }
-  .ev-row:hover { background:var(--border); }
-  .ev-row:last-child { border-bottom:none; }
-  .ev-positive { color:var(--green); font-weight:600; font-family:'JetBrains Mono',monospace; }
+  .parlay-layout { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+  .parlay-builder { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .parlay-results { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .parlay-section-title { font-family:"Barlow Condensed",sans-serif; font-size:18px; font-weight:700; color:white; margin-bottom:4px; }
+  .parlay-section-sub { font-size:11px; color:var(--muted); font-family:"JetBrains Mono",monospace; margin-bottom:16px; }
+  .leg-input-row { display:grid; grid-template-columns:1fr 100px 32px; gap:8px; margin-bottom:8px; align-items:center; }
+  .leg-label-input { background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:8px 12px; border-radius:6px; font-size:13px; font-family:"Barlow",sans-serif; width:100%; }
+  .leg-odds-input { background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:8px 10px; border-radius:6px; font-size:13px; font-family:"JetBrains Mono",monospace; width:100%; text-align:center; }
+  .leg-label-input::placeholder { color:var(--muted); }
+  .leg-odds-input::placeholder { color:var(--muted); }
+  .remove-leg-btn { background:var(--red-dim); border:1px solid var(--red); color:var(--red); border-radius:6px; cursor:pointer; font-size:14px; font-weight:700; width:32px; height:34px; display:flex; align-items:center; justify-content:center; }
+  .remove-leg-btn:hover { background:var(--red); color:white; }
+  .add-leg-btn { width:100%; padding:8px; background:none; border:1px dashed var(--border2); color:var(--muted); cursor:pointer; border-radius:6px; font-size:12px; font-family:"Barlow",sans-serif; margin-top:4px; transition:all 0.15s; }
+  .add-leg-btn:hover { border-color:var(--accent); color:var(--text); }
+  .parlay-stake-row { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .stake-label { font-size:11px; color:var(--muted); font-family:"JetBrains Mono",monospace; white-space:nowrap; }
+  .parlay-stake-input { background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:8px 12px; border-radius:6px; font-size:14px; font-family:"JetBrains Mono",monospace; }
+  .calc-parlay-btn { background:var(--accent); color:white; border:none; padding:9px 20px; border-radius:6px; cursor:pointer; font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:15px; white-space:nowrap; }
+  .calc-parlay-btn:hover { opacity:0.85; }
+  .verdict-banner { border-radius:8px; padding:14px 16px; margin-bottom:16px; text-align:center; }
+  .verdict-banner.avoid { background:var(--red-dim); border:1px solid var(--red); }
+  .verdict-banner.marginal { background:var(--gold-dim); border:1px solid var(--gold); }
+  .verdict-banner.decent { background:var(--green-dim); border:1px solid var(--green); }
+  .verdict-word { font-family:"Barlow Condensed",sans-serif; font-size:32px; font-weight:800; }
+  .verdict-word.avoid { color:var(--red); }
+  .verdict-word.marginal { color:var(--gold); }
+  .verdict-word.decent { color:var(--green); }
+  .verdict-sub { font-size:11px; color:var(--muted); font-family:"JetBrains Mono",monospace; margin-top:4px; }
+  .result-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+  .result-box { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; }
+  .result-box-label { font-size:10px; color:var(--muted); font-family:"JetBrains Mono",monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+  .result-box-val { font-family:"Barlow Condensed",sans-serif; font-size:22px; font-weight:700; color:white; }
+  .result-box-val.green { color:var(--green); } .result-box-val.red { color:var(--red); } .result-box-val.gold { color:var(--gold); }
+  .result-box-sub { font-size:10px; color:var(--muted); font-family:"JetBrains Mono",monospace; margin-top:3px; }
+  .legs-breakdown { margin-top:14px; }
+  .legs-breakdown-title { font-size:10px; color:var(--muted); font-family:"JetBrains Mono",monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+  .leg-result-row { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:var(--bg); border-radius:6px; margin-bottom:5px; font-size:12px; }
+  .leg-result-name { color:var(--text); }
+  .leg-result-right { display:flex; gap:12px; font-family:"JetBrains Mono",monospace; }
+  .leg-result-odds { color:var(--gold); }
+  .leg-result-prob { color:var(--muted); }
+  .payout-compare { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-top:10px; }
+  .payout-compare-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:13px; border-bottom:1px solid var(--border); }
+  .payout-compare-row:last-child { border-bottom:none; font-weight:600; }
+  .payout-label { color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:11px; }
+  .payout-val { font-family:"JetBrains Mono",monospace; font-weight:600; }
+  .empty-results { color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:12px; text-align:center; padding:40px 20px; line-height:1.8; }
 
-  /* Right panel */
-  .right-panel { border-left:1px solid var(--border); padding:16px 14px; overflow-y:auto; }
-  .panel-title { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
-  .alert-item { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:9px 11px; margin-bottom:7px; border-left:3px solid var(--green); }
-  .alert-type { font-size:10px; font-weight:700; color:var(--green); font-family:'JetBrains Mono',monospace; letter-spacing:1px; margin-bottom:3px; }
-  .alert-game { font-size:11px; color:var(--text); margin-bottom:2px; }
-  .alert-profit { font-size:13px; font-weight:700; color:var(--green); font-family:'Barlow Condensed',monospace; }
-  .alert-time { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:3px; }
+  /* ── Spreads & Totals ── */
+  .market-tabs { display:flex; gap:0; margin-bottom:0; border-bottom:1px solid var(--border); }
+  .market-tab { padding:6px 14px; background:none; border:none; color:var(--muted); cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s; }
+  .market-tab:hover { color:var(--text); }
+  .market-tab.active { color:white; border-bottom-color:var(--accent); }
+  .market-panel { display:none; }
+  .market-panel.active { display:block; }
+  .spread-total-footer { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 16px; background:var(--surface2); border-top:1px solid var(--border); }
+  .st-box { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:8px 10px; }
+  .st-box-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+  .st-box-content { display:flex; justify-content:space-between; align-items:center; }
+  .st-team { font-size:11px; color:var(--text); }
+  .st-line { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--green); }
+  .st-book { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .total-box { display:flex; justify-content:space-between; align-items:center; }
+  .total-side { text-align:center; }
+  .total-label { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .total-point { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:white; }
+  .total-odds  { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--green); }
+  .total-book  { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .total-divider { width:1px; background:var(--border); height:40px; }
 
-  .ds-item { margin-bottom:10px; }
-  .ds-name { color:var(--blue); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; }
-  .ds-desc { color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:10px; margin-top:2px; line-height:1.5; }
-
-  .no-data { color:var(--muted); font-size:12px; text-align:center; padding:40px 20px; font-family:'JetBrains Mono',monospace; line-height:1.8; }
-  .loading  { text-align:center; padding:50px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
-
-  /* Modal */
-  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200; align-items:center; justify-content:center; }
-  .modal-overlay.open { display:flex; }
-  .modal { background:var(--surface); border:1px solid var(--border2); border-radius:12px; width:720px; max-height:82vh; overflow-y:auto; padding:22px; }
-  .modal-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
-  .modal-title { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:white; }
-  .modal-close { background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; }
-  .modal-close:hover { color:white; }
-  .section-title { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin:16px 0 8px; }
-  .books-table { width:100%; border-collapse:collapse; font-size:12px; }
-  .books-table th { text-align:left; padding:7px 10px; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; border-bottom:1px solid var(--border); }
-  .books-table td { padding:7px 10px; border-bottom:1px solid var(--border); font-family:'JetBrains Mono',monospace; }
-  .books-table tr:last-child td { border-bottom:none; }
-  .best-cell { color:var(--green); font-weight:700; }
-  .prob-breakdown { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; }
-  .prob-box { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:10px; text-align:center; }
-  .prob-box-label { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:4px; }
-  .prob-box-val { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; color:white; }
 </style>
 </head>
 <body>
@@ -185,414 +235,523 @@
 <header>
   <div class="logo">EDGE<span>FINDER</span></div>
   <div class="header-right">
-    <span class="demo-badge" id="mode-badge">⚡ DEMO</span>
-    <span style="color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;" id="last-update"></span>
-    <button class="refresh-btn" onclick="refreshData()">↺ REFRESH</button>
+    <span class="mode-badge" id="mode-badge">⚡ DEMO</span>
+    <span class="last-update" id="last-update"></span>
+    <button class="refresh-btn" onclick="refreshAll()">↺ REFRESH</button>
   </div>
 </header>
 
-<div class="main-layout">
+<div class="layout">
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-label">Sports</div>
-    <button class="sport-btn active" onclick="selectSport(this,'all')">🏆 All Sports</button>
+    <div class="sidebar-label">Features</div>
+    <button class="nav-btn active" onclick="switchView(this,'odds')" id="nav-odds">📋 Odds Comparison</button>
+    <button class="nav-btn" onclick="switchView(this,'arb')"  id="nav-arb">🟢 Arbitrage Finder</button>
+    <button class="nav-btn" onclick="switchView(this,'best')" id="nav-best">⭐ Best Lines</button>
+    <button class="nav-btn" onclick="switchView(this,'parlay')" id="nav-parlay">🎲 Parlay EV Calc</button>
+
+    <div class="nav-divider"></div>
+    <div class="sidebar-label">Sport</div>
+    <button class="sport-btn active" onclick="selectSport(this,'all')">🏆 All</button>
     <button class="sport-btn" onclick="selectSport(this,'basketball_nba')">🏀 NBA</button>
     <button class="sport-btn" onclick="selectSport(this,'baseball_mlb')">⚾ MLB</button>
-    <button class="sport-btn" onclick="selectSport(this,'americanfootball_nfl')">🏈 NFL</button>
-    <button class="sport-btn" onclick="selectSport(this,'icehockey_nhl')">🏒 NHL</button>
-    <button class="sport-btn" onclick="selectSport(this,'soccer_epl')">⚽ EPL</button>
     <button class="sport-btn" onclick="selectSport(this,'golf_pga_tour_winner')">⛳ PGA Tour</button>
-    <div class="sidebar-divider"></div>
-    <div class="sidebar-label">Views</div>
-    <button class="sport-btn" onclick="switchTab('arb')">🟢 Arbitrage</button>
-    <button class="sport-btn" onclick="switchTab('ev')">📈 Best EV</button>
+    <button class="sport-btn" onclick="selectSport(this,'icehockey_nhl')">🏒 NHL</button>
   </aside>
 
-  <!-- Content -->
+  <!-- Main content -->
   <main class="content">
+
+    <!-- Stats -->
     <div class="stats-bar">
-      <div class="stat-card"><div class="stat-label">Games</div><div class="stat-value" id="stat-games">—</div></div>
-      <div class="stat-card"><div class="stat-label">Arb Opps</div><div class="stat-value green" id="stat-arbs">—</div></div>
-      <div class="stat-card"><div class="stat-label">+EV Bets</div><div class="stat-value gold" id="stat-ev">—</div></div>
-      <div class="stat-card"><div class="stat-label">Books</div><div class="stat-value" id="stat-books">4</div></div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('games')" id="tab-games">ODDS</button>
-      <button class="tab" onclick="switchTab('arb')" id="tab-arb">ARBITRAGE</button>
-      <button class="tab" onclick="switchTab('ev')" id="tab-ev">BEST EV</button>
-    </div>
-
-    <!-- Odds Panel -->
-    <div id="panel-games">
-      <div class="controls-bar">
-        <span class="controls-label">FILTER:</span>
-        <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
-        <button class="filter-btn" onclick="setFilter(this,'arb')">🟢 Arb</button>
-        <button class="filter-btn" onclick="setFilter(this,'posev')">+EV</button>
-        <button class="filter-btn" onclick="setFilter(this,'underdog')">Underdog Value</button>
-        <span class="divider-dot">│</span>
-        <span class="controls-label">SORT:</span>
-        <select class="sort-select" id="sort-select" onchange="applyControls()">
-          <option value="default">Default</option>
-          <option value="ev">Best EV</option>
-          <option value="arb">Arb %</option>
-          <option value="prob">Win Probability</option>
-        </select>
+      <div class="stat-card">
+        <div class="stat-label">Games Today</div>
+        <div class="stat-value" id="stat-games">—</div>
+        <div class="stat-sub" id="stat-books-sub">across — books</div>
       </div>
-      <div class="games-grid" id="games-container"><div class="loading">Loading odds...</div></div>
+      <div class="stat-card">
+        <div class="stat-label">Arb Opportunities</div>
+        <div class="stat-value green" id="stat-arbs">—</div>
+        <div class="stat-sub">guaranteed profit</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Positive EV Bets</div>
+        <div class="stat-value gold" id="stat-ev">—</div>
+        <div class="stat-sub">beating the market</div>
+      </div>
     </div>
 
-    <!-- Arb Panel -->
-    <div id="panel-arb" style="display:none;">
-      <div id="arb-container"><div class="loading">Scanning...</div></div>
+    <!-- ── Odds Comparison View ── -->
+    <div id="view-odds">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Odds Comparison</div>
+          <div class="section-sub">All books side by side — green = best available line</div>
+        </div>
+        <div class="filter-row">
+          <button class="filter-chip active" onclick="setFilter(this,'all')">All</button>
+          <button class="filter-chip" onclick="setFilter(this,'arb')">🟢 Arb Only</button>
+          <button class="filter-chip" onclick="setFilter(this,'posev')">+EV Only</button>
+          <select class="sort-select" id="sort-select" onchange="loadGames()">
+            <option value="time">By Time</option>
+            <option value="arb">By Arb %</option>
+            <option value="ev">By EV</option>
+            <option value="books">Most Books</option>
+          </select>
+        </div>
+      </div>
+      <div class="games-list" id="games-list">
+        <div class="loading">Loading odds...</div>
+      </div>
     </div>
 
-    <!-- EV Panel -->
-    <div id="panel-ev" style="display:none;">
-      <div class="ev-table">
-        <div class="ev-header"><span>Game</span><span>Team</span><span>Odds</span><span>Book</span><span>EV</span></div>
-        <div id="ev-container"><div class="loading">Calculating...</div></div>
+    <!-- ── Arbitrage View ── -->
+    <div id="view-arb" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Arbitrage Finder</div>
+          <div class="section-sub">Guaranteed profit by betting both sides across different books</div>
+        </div>
+      </div>
+      <div id="arb-list"><div class="loading">Scanning for arbitrage...</div></div>
+    </div>
+
+    <!-- ── Best Lines View ── -->
+    <div id="view-best" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Best Lines Finder</div>
+          <div class="section-sub">Best available odds per team — sorted by how much you save vs worst book</div>
+        </div>
+      </div>
+      <div class="best-lines-table">
+        <div class="bl-header">
+          <span>Game</span><span>Team</span><span>Best Odds</span><span>Best Book</span><span>Savings/100</span><span>EV</span>
+        </div>
+        <div id="best-lines-list"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+
+    <!-- ── Parlay Calculator View ── -->
+    <div id="view-parlay" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Parlay EV Calculator</div>
+          <div class="section-sub">See exactly how much edge the book has on your parlay — and what it should really pay</div>
+        </div>
+      </div>
+      <div class="parlay-layout">
+        <!-- Builder -->
+        <div class="parlay-builder">
+          <div class="parlay-section-title">Build Your Parlay</div>
+          <div class="parlay-section-sub">Enter each leg — team name and American odds</div>
+          <div id="leg-inputs">
+            <div class="leg-input-row">
+              <input class="leg-label-input" placeholder="Team / Description" id="leg-label-0">
+              <input class="leg-odds-input" placeholder="Odds" id="leg-odds-0" type="number">
+              <button class="remove-leg-btn" onclick="removeLeg(0)">×</button>
+            </div>
+            <div class="leg-input-row">
+              <input class="leg-label-input" placeholder="Team / Description" id="leg-label-1">
+              <input class="leg-odds-input" placeholder="Odds" id="leg-odds-1" type="number">
+              <button class="remove-leg-btn" onclick="removeLeg(1)">×</button>
+            </div>
+          </div>
+          <button class="add-leg-btn" onclick="addLeg()">+ Add Another Leg</button>
+          <div class="parlay-stake-row">
+            <span class="stake-label">STAKE ($)</span>
+            <input class="parlay-stake-input" type="number" id="parlay-stake" value="100" min="1">
+            <button class="calc-parlay-btn" onclick="calcParlay()">CALCULATE</button>
+          </div>
+          <div style="margin-top:14px; padding:12px; background:var(--surface2); border-radius:8px; font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; line-height:1.8;">
+            <strong style="color:var(--text);">How it works:</strong><br>
+            We calculate the true probability of each leg hitting, multiply them together to get the real parlay probability, then compare what the book pays vs what it should pay at fair odds.
+          </div>
+        </div>
+        <!-- Results -->
+        <div class="parlay-results">
+          <div class="parlay-section-title">Analysis</div>
+          <div class="parlay-section-sub">Results appear after you calculate</div>
+          <div id="parlay-results-body">
+            <div class="empty-results">
+              Build your parlay on the left<br>and hit Calculate to see the analysis.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
-
-  <!-- Right Panel -->
-  <aside class="right-panel">
-    <div class="panel-title">🔔 Arb Alerts</div>
-    <div id="alerts-container"><div class="no-data">No alerts yet</div></div>
-
-    <div class="panel-title" style="margin-top:20px;">📊 Data Structures</div>
-    <div class="ds-item"><div class="ds-name">Hash Map</div><div class="ds-desc">O(1) game lookup by ID</div></div>
-    <div class="ds-item"><div class="ds-name">Min-Heap</div><div class="ds-desc">Best odds ranking per team</div></div>
-    <div class="ds-item"><div class="ds-name">Stack</div><div class="ds-desc">LIFO alert history</div></div>
-    <div class="ds-item"><div class="ds-name">Sorted List</div><div class="ds-desc">Line movement history</div></div>
-
-    <div class="panel-title" style="margin-top:20px;">🧠 Smart Prob</div>
-    <div style="font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; line-height:1.9;">
-      <div>Market odds: <strong style="color:var(--text);">50%</strong></div>
-      <div>Efficiency:  <strong style="color:var(--text);">25%</strong></div>
-      <div>Recent form: <strong style="color:var(--text);">15%</strong></div>
-      <div>H2H record:  <strong style="color:var(--text);">10%</strong></div>
-    </div>
-  </aside>
-</div>
-
-<!-- Modal -->
-<div class="modal-overlay" id="modal" onclick="closeModal(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title"></div>
-      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
-    </div>
-    <div id="modal-body"></div>
-  </div>
 </div>
 
 <script>
+let currentView   = 'odds';
 let currentSport  = 'all';
 let currentFilter = 'all';
-let currentSort   = 'default';
-let currentTab    = 'games';
 
 // ── Helpers ─────────────────────────────────────────────────
-function fmtOdds(p) { return p > 0 ? `+${p}` : `${p}`; }
-function fmtDate(s) {
-  if (!s) return '';
-  return new Date(s).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-}
-function formDots(form) {
-  if (!form || !form.length) return '';
-  return form.map(r => `<span class="form-dot ${r}">${r}</span>`).join('');
-}
-function probColor(p) {
-  if (p >= 65) return 'var(--green)';
-  if (p >= 50) return 'var(--gold)';
-  return 'var(--red)';
-}
+const fmt  = p => p > 0 ? `+${p}` : `${p}`;
+const fmtD = s => s ? new Date(s).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+const pc   = p => p >= 0 ? 'pos' : 'neg';
 
-// ── Fetch ────────────────────────────────────────────────────
+// ── Load & Render Odds ───────────────────────────────────────
 async function loadGames() {
-  document.getElementById('games-container').innerHTML = '<div class="loading">Fetching odds...</div>';
-  const res  = await fetch(`/api/games?sport=${currentSport}&filter=${currentFilter}&sort=${currentSort}`);
-  const data = await res.json();
-  renderGames(data.games || []);
-  updateStats(data.games || []);
-  document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
-  if (!data.demo) document.getElementById('mode-badge').textContent = '🟢 LIVE';
+  const sort   = document.getElementById('sort-select')?.value || 'time';
+  const res    = await fetch(`/api/games?sport=${currentSport}&filter=${currentFilter}&sort=${sort}`);
+  const data   = await res.json();
+  const games  = data.games || [];
+
+  renderGames(games);
+  updateStats(games);
+  document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  const badge = document.getElementById('mode-badge');
+  if (!data.demo) { badge.textContent = '🟢 LIVE'; badge.classList.add('live'); }
 }
 
+function renderGames(games) {
+  const c = document.getElementById('games-list');
+  if (!games.length) { c.innerHTML = '<div class="no-data">No games found for this filter.</div>'; return; }
+  c.innerHTML = games.map(g => gameCard(g)).join('');
+}
+
+function gameCard(g) {
+  const teams     = Object.keys(g.best_odds || {});
+  const allBooks  = [...new Set((g.odds_table?.books || []))];
+  const rows      = g.odds_table?.rows || {};
+  const bestBook  = g.odds_table?.best_book || {};
+  const hasPosEV  = Object.values(g.ev || {}).some(v => v > 0);
+  const gid       = g.id;
+
+  const badges = [
+    g.arb    ? `<span class="badge arb">ARB +${g.arb.profit_pct}%</span>` : '',
+    hasPosEV ? `<span class="badge ev">+EV</span>` : '',
+  ].join('');
+
+  // Moneyline table
+  const teamHeaders = teams.map(t => `<th>${t}</th>`).join('');
+  const mlRows = allBooks.map(book => {
+    const cells = teams.map(team => {
+      const price = rows[team]?.[book];
+      if (price === undefined) return `<td class="normal-cell neg">—</td>`;
+      const isBest = bestBook[team] === book;
+      const cls    = isBest ? `best-odds-cell ${pc(price)}` : `normal-cell ${pc(price)}`;
+      return `<td class="${cls}">${fmt(price)}${isBest ? ' ★' : ''}</td>`;
+    }).join('');
+    return `<tr><td class="book-col">${book}</td>${cells}</tr>`;
+  }).join('');
+
+  // Spreads table
+  const spreadTeams = Object.keys(g.spreads_totals?.spreads || {});
+  const spreadHeaders = spreadTeams.map(t => `<th>${t}</th>`).join('');
+  const spreadRows = allBooks.map(book => {
+    const cells = spreadTeams.map(team => {
+      const info = g.spreads_totals?.spreads[team]?.[book];
+      if (!info) return `<td class="normal-cell neg">—</td>`;
+      const bestSpread = g.best_spreads?.[team];
+      const isBest = bestSpread?.book === book;
+      return `<td class="${isBest ? 'best-odds-cell pos' : 'normal-cell neg'}">${info.label}${isBest ? ' ★' : ''}</td>`;
+    }).join('');
+    return `<tr><td class="book-col">${book}</td>${cells}</tr>`;
+  }).join('');
+
+  // Totals table
+  const totalBooks = allBooks.filter(book =>
+    g.spreads_totals?.totals?.['Over']?.[book] || g.spreads_totals?.totals?.['Under']?.[book]
+  );
+  const totalsRows = totalBooks.map(book => {
+    const over  = g.spreads_totals?.totals?.['Over']?.[book];
+    const under = g.spreads_totals?.totals?.['Under']?.[book];
+    const bestO = g.best_total?.over?.book === book;
+    const bestU = g.best_total?.under?.book === book;
+    return `<tr>
+      <td class="book-col">${book}</td>
+      <td class="${bestO ? 'best-odds-cell pos' : 'normal-cell neg'}">${over ? `o${over.point} ${fmt(over.price)}${bestO?' ★':''}` : '—'}</td>
+      <td class="${bestU ? 'best-odds-cell pos' : 'normal-cell neg'}">${under ? `u${under.point} ${fmt(under.price)}${bestU?' ★':''}` : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const hasSpread = spreadTeams.length > 0;
+  const hasTotal  = totalBooks.length > 0;
+
+  // Best line footer
+  const bestCallout = teams.map(team => {
+    const info    = g.best_odds[team];
+    const ev      = g.ev?.[team] ?? 0;
+    const savings = g.savings?.[team] ?? 0;
+    return `
+    <div class="best-line-item">
+      <div class="best-line-team">${team}</div>
+      <div class="best-line-val">${fmt(info.price)}</div>
+      <div class="best-line-book">${info.book}${savings > 0 ? ` · <span class="savings-pill">+$${savings}/100</span>` : ''}</div>
+      <div style="margin-top:3px;"><span class="ev-pill ${pc(ev)}">${ev >= 0 ? '+' : ''}${ev}% EV</span></div>
+    </div>`;
+  }).join('');
+
+  // Spread/total best line summary
+  const spreadSummary = hasSpread ? teams.map(t => {
+    const s = g.best_spreads?.[t];
+    return s ? `<span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">${t.split(' ').pop()} <strong style="color:var(--text);">${s.label}</strong> ${fmt(s.price)} @ ${s.book}</span>` : '';
+  }).join('  ·  ') : '';
+
+  const totalSummary = hasTotal ? (() => {
+    const o = g.best_total?.over;
+    const u = g.best_total?.under;
+    return [
+      o ? `<span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">Over <strong style="color:var(--text);">o${o.point}</strong> ${fmt(o.price)} @ ${o.book}</span>` : '',
+      u ? `<span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">Under <strong style="color:var(--text);">u${u.point}</strong> ${fmt(u.price)} @ ${u.book}</span>` : '',
+    ].join('  ·  ');
+  })() : '';
+
+  return `
+  <div class="game-card ${g.arb ? 'has-arb' : ''}">
+    <div class="card-header">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <span class="card-sport">${g.sport}</span>
+        <span class="card-time">${fmtD(g.commence_time)}</span>
+      </div>
+      <div class="card-badges">${badges}</div>
+    </div>
+    <div class="card-body">
+      <div class="matchup">${g.away}<span class="vs">@</span>${g.home}</div>
+
+      <!-- Market tabs -->
+      <div class="market-tabs">
+        <button class="market-tab active" onclick="switchMarket(event,'${gid}','ml')">MONEYLINE</button>
+        ${hasSpread ? `<button class="market-tab" onclick="switchMarket(event,'${gid}','spread')">SPREAD</button>` : ''}
+        ${hasTotal  ? `<button class="market-tab" onclick="switchMarket(event,'${gid}','total')">TOTAL</button>` : ''}
+      </div>
+
+      <!-- Moneyline panel -->
+      <div class="market-panel active" id="panel-ml-${gid}" style="overflow-x:auto;">
+        <table class="odds-compare">
+          <thead><tr><th>Book</th>${teamHeaders}</tr></thead>
+          <tbody>${mlRows}</tbody>
+        </table>
+      </div>
+
+      <!-- Spread panel -->
+      ${hasSpread ? `<div class="market-panel" id="panel-spread-${gid}" style="overflow-x:auto;">
+        <table class="odds-compare">
+          <thead><tr><th>Book</th>${spreadHeaders}</tr></thead>
+          <tbody>${spreadRows}</tbody>
+        </table>
+        <div style="padding:6px 10px; font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace;">Best spread: ${spreadSummary}</div>
+      </div>` : ''}
+
+      <!-- Total panel -->
+      ${hasTotal ? `<div class="market-panel" id="panel-total-${gid}" style="overflow-x:auto;">
+        <table class="odds-compare">
+          <thead><tr><th>Book</th><th>Over</th><th>Under</th></tr></thead>
+          <tbody>${totalsRows}</tbody>
+        </table>
+        <div style="padding:6px 10px; font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace;">Best: ${totalSummary}</div>
+      </div>` : ''}
+    </div>
+    <div class="card-footer" onclick="openArbCalc('${gid}')" style="cursor:pointer;">
+      <div class="best-line-callout">${bestCallout}</div>
+      <div>${g.num_books} books compared</div>
+    </div>
+  </div>`;
+}
+
+function switchMarket(e, gid, market) {
+  e.stopPropagation();
+  const card = e.target.closest('.game-card');
+  card.querySelectorAll('.market-tab').forEach(t => t.classList.remove('active'));
+  card.querySelectorAll('.market-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  const panel = card.querySelector(`#panel-${market}-${gid}`);
+  if (panel) panel.classList.add('active');
+}
+
+// ── Arbitrage ────────────────────────────────────────────────
 async function loadArbs() {
-  document.getElementById('arb-container').innerHTML = '<div class="loading">Scanning...</div>';
+  document.getElementById('arb-list').innerHTML = '<div class="loading">Scanning for arbitrage...</div>';
   const res  = await fetch('/api/arbitrage');
   const data = await res.json();
   renderArbs(data.arbs || []);
 }
 
-async function loadEV() {
-  document.getElementById('ev-container').innerHTML = '<div class="loading">Calculating EV...</div>';
-  const res  = await fetch('/api/best_ev');
-  const data = await res.json();
-  renderEV(data.top_ev || []);
-}
-
-async function loadAlerts() {
-  const res  = await fetch('/api/alerts');
-  const data = await res.json();
-  renderAlerts(data.alerts || []);
-}
-
-// ── Render Games ─────────────────────────────────────────────
-function renderGames(games) {
-  const c = document.getElementById('games-container');
-  if (!games.length) { c.innerHTML = '<div class="no-data">No games match your filters</div>'; return; }
-  c.innerHTML = games.map(gameCard).join('');
-}
-
-function gameCard(g) {
-  const teams   = Object.keys(g.best_odds || {});
-  const hasPosEV = Object.values(g.ev || {}).some(v => v > 0);
-
-  const badges = [
-    g.arb    ? `<span class="arb-badge">ARB +${g.arb.profit_pct}%</span>` : '',
-    hasPosEV ? `<span class="ev-badge">+EV</span>` : '',
-  ].join('');
-
-  const teamsHTML = teams.slice(0,2).map(team => {
-    const info = g.best_odds[team];
-    const ev   = g.ev?.[team] ?? 0;
-    const sp   = g.smart_probs?.[team];
-    const isFav = team === g.favorite;
-
-    const priceClass = info.price > 0 ? 'pos' : 'neg';
-    const evClass    = ev >= 0 ? 'pos' : 'neg';
-
-    // Smart prob bar
-    const smartProb  = sp?.smart_prob ?? 0;
-    const barColor   = probColor(smartProb);
-    const probHTML   = sp ? `
-      <div class="prob-section">
-        <div class="prob-label">
-          <span>SMART WIN%</span>
-          <span style="color:${barColor}; font-weight:600;">${smartProb}%</span>
-        </div>
-        <div class="prob-bar-bg">
-          <div class="prob-bar-fill" style="width:${smartProb}%; background:${barColor};"></div>
-        </div>
-      </div>` : '';
-
-    const formHTML = sp?.form ? `<div class="form-row">${formDots(sp.form)}</div>` : '';
-
-    const effHTML = sp?.off_rtg ? `
-      <div class="eff-row">
-        <div class="eff-stat"><span>OFF </span>${sp.off_rtg}</div>
-        ${sp.def_rtg ? `<div class="eff-stat"><span>DEF </span>${sp.def_rtg}</div>` : ''}
-        ${sp.h2h_wins !== undefined && (sp.h2h_wins + sp.h2h_losses) > 0
-          ? `<div class="eff-stat"><span>H2H </span>${sp.h2h_wins}-${sp.h2h_losses}</div>` : ''}
-      </div>` : '';
-
-    return `
-    <div class="team-panel">
-      <div class="team-name-sm">${isFav ? '⭐ ' : ''}${team}</div>
-      <div class="odds-price ${priceClass}">${fmtOdds(info.price)}</div>
-      <div class="odds-row-meta">
-        <span class="odds-book">${info.book}</span>
-        <span class="ev-tag ${evClass}">${ev >= 0 ? '+' : ''}${ev}%</span>
-      </div>
-      ${probHTML}
-      ${formHTML}
-      ${effHTML}
+function renderArbs(arbs) {
+  const c = document.getElementById('arb-list');
+  if (!arbs.length) {
+    c.innerHTML = `<div class="no-data">
+      No arbitrage opportunities right now.<br><br>
+      Arb windows are rare and close fast — usually within minutes.<br>
+      Refresh regularly or check back when new games open.
     </div>`;
-  }).join('');
+    return;
+  }
+  c.innerHTML = arbs.map(g => arbCard(g, 100)).join('');
+}
+
+function arbCard(g, stake) {
+  const arb  = g.arb;
+  const legs = arb.bet_amounts || [];
+  const profit = (stake * arb.profit_pct / 100).toFixed(2);
+
+  const legsHTML = legs.map(leg => `
+    <div class="arb-leg">
+      <div>
+        <div class="leg-label">Team</div>
+        <div class="leg-team">${leg.team}</div>
+        <div class="leg-book">${leg.book}</div>
+      </div>
+      <div>
+        <div class="leg-label">Odds</div>
+        <div class="leg-odds">${fmt(leg.odds)}</div>
+      </div>
+      <div>
+        <div class="leg-label">Bet</div>
+        <div class="leg-stake">$${leg.stake}</div>
+      </div>
+      <div>
+        <div class="leg-label">Payout</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text);">$${leg.payout}</div>
+      </div>
+    </div>`).join('');
 
   return `
-  <div class="game-card ${g.arb ? 'has-arb' : ''}" onclick="openGame('${g.id}')">
-    <div class="game-header">
-      <div class="game-meta">
-        <span class="sport-tag">${g.sport}</span>
-        <span class="game-time">${fmtDate(g.commence_time)}</span>
+  <div class="arb-hero" id="arb-${g.id}">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="arb-title">${g.away} @ ${g.home}</div>
+        <div class="arb-sub">${g.sport} · ${fmtD(g.commence_time)}</div>
       </div>
-      <div class="badge-row">${badges}</div>
+      <div style="text-align:right;">
+        <div class="arb-profit">+${arb.profit_pct}%</div>
+        <div class="arb-sub">guaranteed profit</div>
+      </div>
     </div>
-    <div class="game-body">
-      <div class="matchup">${g.away}<span class="vs">@</span>${g.home}</div>
-      <div class="teams-grid">${teamsHTML}</div>
-      <div class="books-count">📚 ${g.num_books} books compared</div>
+
+    <div class="arb-calc">
+      <div class="arb-calc-header">
+        <span class="arb-calc-label">CALCULATE FOR STAKE:</span>
+        <input class="stake-input" type="number" id="stake-${g.id}" value="${stake}" min="10" max="100000">
+        <button class="calc-btn" onclick="recalcArb('${g.id}')">CALCULATE</button>
+      </div>
+      <div class="arb-legs" id="legs-${g.id}">${legsHTML}</div>
+      <div class="arb-result">
+        <div class="arb-result-label">GUARANTEED PROFIT on $${stake} total stake</div>
+        <div class="arb-result-profit" id="profit-${g.id}">+$${profit}</div>
+      </div>
     </div>
   </div>`;
 }
 
-// ── Render Arbs ──────────────────────────────────────────────
-function renderArbs(arbs) {
-  const c = document.getElementById('arb-container');
-  if (!arbs.length) { c.innerHTML = '<div class="no-data">No arbitrage opportunities right now.<br>Check back after the next odds refresh.</div>'; return; }
-  c.innerHTML = arbs.map(g => {
-    const legs = (g.arb?.outcomes || []).map(o => `
-      <div class="arb-leg">
-        <span class="arb-leg-team">${o.name}</span>
-        <div class="arb-leg-right">
-          <span class="arb-leg-book">${o.book}</span>
-          <span class="arb-leg-odds">${fmtOdds(o.price)}</span>
-        </div>
-      </div>`).join('');
-    return `
-    <div class="arb-card">
-      <div class="arb-game">${g.away} @ ${g.home}</div>
-      <div class="arb-profit">+${g.arb.profit_pct}% guaranteed profit</div>
-      <div class="arb-detail">${g.sport} • Implied total: ${g.arb.total_implied}%</div>
-      <div class="arb-legs">${legs}</div>
-    </div>`;
-  }).join('');
-}
+async function recalcArb(gameId) {
+  const stake = parseFloat(document.getElementById(`stake-${gameId}`).value) || 100;
+  const res   = await fetch(`/api/arb_calc?game_id=${gameId}&stake=${stake}`);
+  const data  = await res.json();
+  if (data.error) return;
 
-// ── Render EV ────────────────────────────────────────────────
-function renderEV(bets) {
-  const c = document.getElementById('ev-container');
-  if (!bets.length) { c.innerHTML = '<div class="no-data" style="padding:20px;">No positive EV bets found</div>'; return; }
-  c.innerHTML = bets.map(b => `
-    <div class="ev-row">
-      <div>
-        <div style="font-size:12px;">${b.game}</div>
-        <div class="form-row" style="margin-top:4px;">${formDots(b.form)}</div>
-      </div>
-      <div style="font-size:12px; color:var(--text);">${b.team}</div>
-      <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:${b.odds>0?'var(--green)':'var(--red)'};">${fmtOdds(b.odds)}</div>
-      <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace;">${b.book}</div>
-      <div class="ev-positive">+${b.ev}%</div>
+  const legsEl = document.getElementById(`legs-${gameId}`);
+  legsEl.innerHTML = data.amounts.map(leg => `
+    <div class="arb-leg">
+      <div><div class="leg-label">Team</div><div class="leg-team">${leg.team}</div><div class="leg-book">${leg.book}</div></div>
+      <div><div class="leg-label">Odds</div><div class="leg-odds">${fmt(leg.odds)}</div></div>
+      <div><div class="leg-label">Bet</div><div class="leg-stake">$${leg.stake}</div></div>
+      <div><div class="leg-label">Payout</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);">$${leg.payout}</div></div>
     </div>`).join('');
+
+  document.getElementById(`profit-${gameId}`).textContent = `+$${data.profit}`;
+  document.querySelector(`#arb-${gameId} .arb-result-label`).textContent = `GUARANTEED PROFIT on $${stake} total stake`;
 }
 
-// ── Render Alerts ────────────────────────────────────────────
-function renderAlerts(alerts) {
-  const c = document.getElementById('alerts-container');
-  if (!alerts.length) { c.innerHTML = '<div class="no-data">No alerts yet</div>'; return; }
-  c.innerHTML = alerts.map(a => `
-    <div class="alert-item">
-      <div class="alert-type">${a.type}</div>
-      <div class="alert-game">${a.game}</div>
-      <div class="alert-profit">+${a.profit}% profit</div>
-      <div class="alert-time">${a.time}</div>
-    </div>`).join('');
-}
-
-// ── Game Detail Modal ─────────────────────────────────────────
-async function openGame(gameId) {
-  const res  = await fetch(`/api/game/${gameId}`);
-  const data = await res.json();
-  const g    = data.game;
-  if (!g) return;
-
-  const teams     = Object.keys(g.best_odds || {}).slice(0,2);
-  const allTeams  = [...new Set((g.books_table||[]).flatMap(r => Object.keys(r).filter(k=>k!=='book')))];
-  const bestPerTeam = {};
-  for (const t of allTeams) {
-    let best = -Infinity;
-    for (const row of g.books_table||[]) {
-      if (row[t] !== undefined) {
-        const dec = row[t]>0 ? row[t]/100+1 : 100/Math.abs(row[t])+1;
-        if (dec > best) { best=dec; bestPerTeam[t]=row[t]; }
-      }
+function openArbCalc(gameId) {
+  // If this game has an arb, switch to arb view
+  fetch(`/api/game/${gameId}`).then(r => r.json()).then(data => {
+    if (data.game?.arb) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('nav-arb').classList.add('active');
+      showView('arb');
+      loadArbs();
     }
-  }
-
-  // Prob breakdown for both teams
-  const probBreakdowns = teams.map(t => {
-    const sp = g.smart_probs?.[t];
-    if (!sp) return '';
-    return `
-    <div>
-      <div style="font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; color:white; margin-bottom:8px;">${t}</div>
-      <div class="prob-breakdown">
-        <div class="prob-box"><div class="prob-box-label">SMART</div><div class="prob-box-val" style="color:${probColor(sp.smart_prob)};">${sp.smart_prob}%</div></div>
-        <div class="prob-box"><div class="prob-box-label">MARKET</div><div class="prob-box-val">${sp.odds_prob}%</div></div>
-        <div class="prob-box"><div class="prob-box-label">EFFICIENCY</div><div class="prob-box-val">${sp.eff_prob}%</div></div>
-        <div class="prob-box"><div class="prob-box-label">H2H</div><div class="prob-box-val">${sp.h2h_prob}%</div></div>
-      </div>
-      <div style="margin-top:8px;">
-        <div style="font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:4px;">RECENT FORM (newest first)</div>
-        <div class="form-row">${formDots(sp.form)}</div>
-      </div>
-      ${sp.h2h_wins !== undefined && (sp.h2h_wins+sp.h2h_losses)>0
-        ? `<div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:6px;">H2H vs opponent: <strong style="color:var(--text);">${sp.h2h_wins}W – ${sp.h2h_losses}L</strong></div>` : ''}
-    </div>`;
-  }).join('<hr style="border-color:var(--border); margin:12px 0;">');
-
-  const tableRows = (g.books_table||[]).map(row => `
-    <tr>
-      <td style="color:var(--text);font-weight:600;">${row.book}</td>
-      ${allTeams.map(t => {
-        const val = row[t];
-        if (val===undefined) return '<td style="color:var(--muted);">—</td>';
-        return `<td class="${val===bestPerTeam[t]?'best-cell':''}">${fmtOdds(val)}</td>`;
-      }).join('')}
-    </tr>`).join('');
-
-  document.getElementById('modal-title').textContent = `${g.away} @ ${g.home}`;
-  document.getElementById('modal-body').innerHTML = `
-    <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:12px;">${g.sport} • ${fmtDate(g.commence_time)}</div>
-    ${g.arb ? `<div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
-      <div style="color:var(--green);font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:18px;">🟢 ARBITRAGE: +${g.arb.profit_pct}% guaranteed profit</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:3px;">Implied total: ${g.arb.total_implied}%</div>
-    </div>` : ''}
-    <div class="section-title">Win Probability Breakdown</div>
-    ${probBreakdowns}
-    <div class="section-title" style="margin-top:16px;">Book Comparison (green = best odds)</div>
-    <div style="overflow-x:auto;">
-      <table class="books-table" style="background:var(--bg);">
-        <tr><th>Book</th>${allTeams.map(t=>`<th>${t}</th>`).join('')}</tr>
-        ${tableRows}
-      </table>
-    </div>`;
-  document.getElementById('modal').classList.add('open');
+  });
 }
 
-function closeModal(e) { if (e.target.id==='modal') document.getElementById('modal').classList.remove('open'); }
+// ── Best Lines ───────────────────────────────────────────────
+async function loadBestLines() {
+  document.getElementById('best-lines-list').innerHTML = '<div class="loading">Loading best lines...</div>';
+  const res  = await fetch(`/api/best_lines`);
+  const data = await res.json();
+  renderBestLines(data.lines || []);
+}
 
-// ── Controls ──────────────────────────────────────────────────
+function renderBestLines(lines) {
+  const c = document.getElementById('best-lines-list');
+  if (!lines.length) { c.innerHTML = '<div class="no-data" style="padding:30px;">No lines found</div>'; return; }
+
+  // Filter to current sport
+  const filtered = currentSport === 'all' ? lines : lines.filter(l => {
+    return true; // already filtered server-side via games
+  });
+
+  c.innerHTML = filtered.map(l => `
+    <div class="bl-row">
+      <div>
+        <div class="bl-game">${l.game}</div>
+        <div class="bl-sport">${l.sport}</div>
+      </div>
+      <div class="bl-team">${l.team}</div>
+      <div class="bl-odds ${pc(l.odds)}">${fmt(l.odds)}</div>
+      <div class="bl-book">${l.book}</div>
+      <div class="bl-savings">${l.savings > 0 ? `+$${l.savings}` : '—'}</div>
+      <div class="bl-ev ${pc(l.ev)}">${l.ev >= 0 ? '+' : ''}${l.ev}%</div>
+    </div>`).join('');
+}
+
+// ── Controls ─────────────────────────────────────────────────
+function updateStats(games) {
+  document.getElementById('stat-games').textContent = games.length;
+  document.getElementById('stat-arbs').textContent  = games.filter(g => g.arb).length;
+  document.getElementById('stat-ev').textContent    = games.reduce((n, g) => n + Object.values(g.ev || {}).filter(v => v > 0).length, 0);
+  const maxBooks = games.length ? Math.max(...games.map(g => g.num_books)) : 0;
+  document.getElementById('stat-books-sub').textContent = `up to ${maxBooks} books`;
+}
+
 function selectSport(btn, sport) {
-  document.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sport-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentSport = sport;
-  switchTab('games');
-  loadGames();
+  refreshAll();
 }
 
 function setFilter(btn, filter) {
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentFilter = filter;
   loadGames();
 }
 
-function applyControls() {
-  currentSort = document.getElementById('sort-select').value;
-  loadGames();
-}
-
-function switchTab(tab) {
-  currentTab = tab;
-  ['games','arb','ev'].forEach(t => {
-    document.getElementById(`panel-${t}`).style.display = t===tab ? 'block' : 'none';
-    document.getElementById(`tab-${t}`)?.classList.toggle('active', t===tab);
+function showView(view) {
+  ['odds','arb','best','parlay'].forEach(v => {
+    document.getElementById(`view-${v}`).style.display = v === view ? 'block' : 'none';
   });
-  if (tab==='arb') loadArbs();
-  if (tab==='ev')  loadEV();
-  loadAlerts();
 }
 
-function updateStats(games) {
-  document.getElementById('stat-games').textContent = games.length;
-  document.getElementById('stat-arbs').textContent  = games.filter(g=>g.arb).length;
-  document.getElementById('stat-ev').textContent    = games.reduce((n,g)=>n+Object.values(g.ev||{}).filter(v=>v>0).length, 0);
+function switchView(btn, view) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentView = view;
+  showView(view);
+  if (view === 'odds') loadGames();
+  if (view === 'arb')  loadArbs();
+  if (view === 'best') loadBestLines();
+  // parlay view is self-contained, no load needed
 }
 
-function refreshData() { loadGames(); loadAlerts(); if(currentTab==='arb') loadArbs(); if(currentTab==='ev') loadEV(); }
+function refreshAll() {
+  if (currentView === 'odds') loadGames();
+  if (currentView === 'arb')  loadArbs();
+  if (currentView === 'best') loadBestLines();
+  updateStats([]);
+}
 
-// ── Init ──────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────
 loadGames();
-loadAlerts();
-setInterval(refreshData, 60000);
+setInterval(loadGames, 60000);
 </script>
 </body>
 </html>
