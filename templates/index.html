@@ -250,6 +250,7 @@
     <button class="nav-btn" onclick="switchView(this,'arb')"  id="nav-arb">🟢 Arbitrage Finder</button>
     <button class="nav-btn" onclick="switchView(this,'best')" id="nav-best">⭐ Best Lines</button>
     <button class="nav-btn" onclick="switchView(this,'parlay')" id="nav-parlay">🎲 Parlay EV Calc</button>
+    <button class="nav-btn" onclick="switchView(this,'kelly')" id="nav-kelly">📐 Kelly Criterion</button>
 
     <div class="nav-divider"></div>
     <div class="sidebar-label">Sport</div>
@@ -258,6 +259,7 @@
     <button class="sport-btn" onclick="selectSport(this,'baseball_mlb')">⚾ MLB</button>
     <button class="sport-btn" onclick="selectSport(this,'golf_pga_tour_winner')">⛳ PGA Tour</button>
     <button class="sport-btn" onclick="selectSport(this,'icehockey_nhl')">🏒 NHL</button>
+    <button class="sport-btn" onclick="selectSport(this,'americanfootball_nfl')">🏈 NFL</button>
   </aside>
 
   <!-- Main content -->
@@ -389,7 +391,64 @@
           </div>
         </div>
       </div>
-    </div>
+    </div><!-- end view-parlay -->
+
+    <!-- ── Kelly Criterion View ── -->
+    <div id="view-kelly" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Kelly Criterion Calculator</div>
+          <div class="section-sub">Optimal bet sizing based on your edge over the book</div>
+        </div>
+      </div>
+      <div class="parlay-layout">
+        <div class="parlay-builder">
+          <div class="parlay-section-title">Bet Parameters</div>
+          <div class="parlay-section-sub">Enter the odds, your estimated win probability, and bankroll</div>
+
+          <div style="margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;">Odds (American)</div>
+            <input id="kelly-odds" type="number" class="leg-odds-input" style="width:100%;text-align:left;padding:10px 12px;" value="-110" placeholder="-110">
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;">Your True Win Probability</div>
+              <div id="kelly-prob-display" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--green);">52%</div>
+            </div>
+            <input id="kelly-prob" type="range" min="1" max="99" value="52" step="0.5"
+              style="width:100%;accent-color:var(--green);"
+              oninput="document.getElementById('kelly-prob-display').textContent=this.value+'%'">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:4px;">
+              <span>1%</span><span>50%</span><span>99%</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;">Bankroll ($)</div>
+            <input id="kelly-bankroll" type="number" class="leg-odds-input" style="width:100%;text-align:left;padding:10px 12px;" value="1000" min="1">
+          </div>
+
+          <button class="calc-parlay-btn" onclick="calcKelly()" style="width:100%;">CALCULATE</button>
+
+          <div style="margin-top:14px;padding:12px;background:var(--surface2);border-radius:8px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.8;">
+            <strong style="color:var(--text);">How it works:</strong><br>
+            Kelly tells you what % of your bankroll to bet given your edge. Full Kelly maximizes long-run growth but is volatile. Half Kelly is the standard recommendation — keeps most of the growth with much less risk.
+          </div>
+        </div>
+
+        <div class="parlay-results">
+          <div class="parlay-section-title">Sizing Recommendation</div>
+          <div class="parlay-section-sub">Results appear after you calculate</div>
+          <div id="kelly-results-body">
+            <div class="empty-results">
+              Enter your bet parameters<br>and hit Calculate to see the recommendation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end view-kelly -->
+
   </main>
 </div>
 
@@ -743,7 +802,7 @@ function setFilter(btn, filter) {
 }
 
 function showView(view) {
-  ['odds','arb','best','parlay'].forEach(v => {
+  ['odds','arb','best','parlay','kelly'].forEach(v => {
     document.getElementById(`view-${v}`).style.display = v === view ? 'block' : 'none';
   });
 }
@@ -950,22 +1009,85 @@ function renderParlayResults(data) {
   document.getElementById('parlay-results-body').innerHTML = resultsHTML;
 }
 
-// Old leg management (no longer used but keeping for reference)
-function addLeg() {
-  const count = document.querySelectorAll('.leg-input-row').length;
-  const row = document.createElement('div');
-  row.className = 'leg-input-row';
-  row.innerHTML = `
-    <input class="leg-label-input" placeholder="Team / Description" id="leg-label-${count}">
-    <input class="leg-odds-input" placeholder="Odds" id="leg-odds-${count}" type="number">
-    <button class="remove-leg-btn" onclick="removeLegOld(${count})">×</button>
-  `;
-  document.getElementById('leg-inputs').appendChild(row);
+// ── Kelly Criterion ──────────────────────────────────────────
+async function calcKelly() {
+  const odds     = parseInt(document.getElementById('kelly-odds').value) || -110;
+  const trueProb = parseFloat(document.getElementById('kelly-prob').value) || 52;
+  const bankroll = parseFloat(document.getElementById('kelly-bankroll').value) || 1000;
+
+  try {
+    const res  = await fetch(`/api/kelly?odds=${odds}&true_prob=${trueProb}&bankroll=${bankroll}`);
+    const data = await res.json();
+    renderKellyResults(data);
+  } catch (e) {
+    alert('Error calculating Kelly: ' + e.message);
+  }
 }
 
-function removeLegOld(idx) {
-  const row = document.getElementById(`leg-label-${idx}`).closest('.leg-input-row');
-  row.remove();
+function renderKellyResults(data) {
+  const hasEdge     = data.edge > 0;
+  const verdictCls  = hasEdge ? 'decent' : 'avoid';
+  const verdictWord = hasEdge ? 'BET' : 'SKIP';
+
+  document.getElementById('kelly-results-body').innerHTML = `
+    <div class="verdict-banner ${verdictCls}">
+      <div class="verdict-word ${verdictCls}">${verdictWord}</div>
+      <div class="verdict-sub">${data.edge > 0 ? '+' : ''}${data.edge}% edge over the book</div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="result-box-label">Full Kelly</div>
+        <div class="result-box-val ${hasEdge ? 'green' : 'red'}">${data.kelly_pct}%</div>
+        <div class="result-box-sub">$${data.kelly_bet} of bankroll</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Half Kelly ★</div>
+        <div class="result-box-val gold">${data.half_kelly_pct}%</div>
+        <div class="result-box-sub">$${data.half_kelly_bet} — recommended</div>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="result-box-label">Quarter Kelly</div>
+        <div class="result-box-val">${data.qtr_kelly_pct}%</div>
+        <div class="result-box-sub">$${data.qtr_kelly_bet} — conservative</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Your Edge</div>
+        <div class="result-box-val ${hasEdge ? 'green' : 'red'}">${data.edge > 0 ? '+' : ''}${data.edge}%</div>
+        <div class="result-box-sub">Book implied: ${data.implied_prob}%</div>
+      </div>
+    </div>
+
+    <div class="payout-compare">
+      <div class="payout-compare-row">
+        <span class="payout-label">Odds</span>
+        <span class="payout-val">${data.odds > 0 ? '+' : ''}${data.odds} (${data.decimal}x)</span>
+      </div>
+      <div class="payout-compare-row">
+        <span class="payout-label">Book Implied Prob</span>
+        <span class="payout-val">${data.implied_prob}%</span>
+      </div>
+      <div class="payout-compare-row">
+        <span class="payout-label">Your True Prob</span>
+        <span class="payout-val" style="color:var(--gold);">${data.true_prob}%</span>
+      </div>
+      <div class="payout-compare-row">
+        <span class="payout-label">Bankroll</span>
+        <span class="payout-val">$${data.bankroll.toLocaleString()}</span>
+      </div>
+      <div class="payout-compare-row">
+        <span class="payout-label">Recommended Bet (½ Kelly)</span>
+        <span class="payout-val" style="color:var(--green);">$${data.half_kelly_bet}</span>
+      </div>
+    </div>
+
+    ${!hasEdge ? `<div style="margin-top:12px;padding:10px 14px;background:var(--red-dim);border:1px solid var(--red);border-radius:8px;font-size:11px;color:var(--red);font-family:'JetBrains Mono',monospace;">
+      Your estimated probability (${data.true_prob}%) is below the breakeven needed at these odds (${data.implied_prob}%). Kelly says don't bet — you have no edge.
+    </div>` : ''}
+  `;
 }
 
 // ── Init ─────────────────────────────────────────────────────

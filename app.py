@@ -20,7 +20,7 @@ import requests
 import time
 import heapq
 from datetime import datetime
-from collections import defaultdict
+from collections import defaultdict, deque
 import os
 
 app = Flask(__name__)
@@ -42,7 +42,7 @@ BOOKS = ["draftkings", "fanduel", "betmgm", "caesars", "pointsbet", "espnbet"]
 #  DATA STRUCTURES
 # ─────────────────────────────────────────────────────────────
 games_db     = {}        # Hash map: game_id -> processed game
-arb_stack    = []        # Stack: arb alerts LIFO
+arb_stack    = deque(maxlen=50)  # Stack: arb alerts LIFO
 last_fetched = {}
 cache_ttl    = 60        # seconds
 
@@ -294,8 +294,6 @@ def process_game(raw: dict) -> dict:
             "profit_pct": arb["profit_pct"],
             "time":       datetime.now().strftime("%H:%M:%S"),
         })
-        if len(arb_stack) > 50:
-            arb_stack.pop(0)
 
     # Determine favorite (highest implied prob)
     favorite = max(consensus, key=consensus.get) if consensus else None
@@ -470,6 +468,124 @@ def get_demo_data():
                 ]}]},
             ]
         },
+        {
+            "id": "nhl_001", "sport_key": "icehockey_nhl", "sport_title": "NHL",
+            "commence_time": "2026-05-08T23:00:00Z",
+            "home_team": "Florida Panthers", "away_team": "Carolina Hurricanes",
+            "bookmakers": [
+                {"key": "draftkings", "title": "DraftKings", "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Florida Panthers", "price": -145}, {"name": "Carolina Hurricanes", "price": 122}]},
+                    {"key": "spreads", "outcomes": [{"name": "Florida Panthers", "price": -110, "point": -1.5}, {"name": "Carolina Hurricanes", "price": -110, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -115, "point": 5.5}, {"name": "Under", "price": -105, "point": 5.5}]},
+                ]},
+                {"key": "fanduel",    "title": "FanDuel",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Florida Panthers", "price": -150}, {"name": "Carolina Hurricanes", "price": 126}]},
+                    {"key": "spreads", "outcomes": [{"name": "Florida Panthers", "price": -112, "point": -1.5}, {"name": "Carolina Hurricanes", "price": -108, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 5.5}, {"name": "Under", "price": -110, "point": 5.5}]},
+                ]},
+                {"key": "betmgm",     "title": "BetMGM",     "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Florida Panthers", "price": -142}, {"name": "Carolina Hurricanes", "price": 118}]},
+                    {"key": "spreads", "outcomes": [{"name": "Florida Panthers", "price": -108, "point": -1.5}, {"name": "Carolina Hurricanes", "price": -112, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -112, "point": 5.5}, {"name": "Under", "price": -108, "point": 5.5}]},
+                ]},
+                {"key": "caesars",    "title": "Caesars",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Florida Panthers", "price": -148}, {"name": "Carolina Hurricanes", "price": 124}]},
+                    {"key": "spreads", "outcomes": [{"name": "Florida Panthers", "price": -110, "point": -1.5}, {"name": "Carolina Hurricanes", "price": -110, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 5.5}, {"name": "Under", "price": -110, "point": 5.5}]},
+                ]},
+                {"key": "espnbet",    "title": "ESPN Bet",   "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Florida Panthers", "price": -140}, {"name": "Carolina Hurricanes", "price": 120}]},
+                    {"key": "spreads", "outcomes": [{"name": "Florida Panthers", "price": -105, "point": -1.5}, {"name": "Carolina Hurricanes", "price": -115, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -108, "point": 5.5}, {"name": "Under", "price": -112, "point": 5.5}]},
+                ]},
+            ]
+        },
+        {
+            "id": "nhl_002", "sport_key": "icehockey_nhl", "sport_title": "NHL",
+            "commence_time": "2026-05-09T00:30:00Z",
+            "home_team": "Edmonton Oilers", "away_team": "Dallas Stars",
+            "bookmakers": [
+                {"key": "draftkings", "title": "DraftKings", "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Edmonton Oilers", "price": -130}, {"name": "Dallas Stars", "price": 110}]},
+                    {"key": "spreads", "outcomes": [{"name": "Edmonton Oilers", "price": -115, "point": -1.5}, {"name": "Dallas Stars", "price": -105, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -108, "point": 6.0}, {"name": "Under", "price": -112, "point": 6.0}]},
+                ]},
+                {"key": "fanduel",    "title": "FanDuel",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Edmonton Oilers", "price": -134}, {"name": "Dallas Stars", "price": 114}]},
+                    {"key": "spreads", "outcomes": [{"name": "Edmonton Oilers", "price": -118, "point": -1.5}, {"name": "Dallas Stars", "price": -102, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 6.0}, {"name": "Under", "price": -110, "point": 6.0}]},
+                ]},
+                {"key": "betmgm",     "title": "BetMGM",     "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Edmonton Oilers", "price": -128}, {"name": "Dallas Stars", "price": 108}]},
+                    {"key": "spreads", "outcomes": [{"name": "Edmonton Oilers", "price": -112, "point": -1.5}, {"name": "Dallas Stars", "price": -108, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -105, "point": 6.0}, {"name": "Under", "price": -115, "point": 6.0}]},
+                ]},
+                {"key": "caesars",    "title": "Caesars",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Edmonton Oilers", "price": -132}, {"name": "Dallas Stars", "price": 112}]},
+                    {"key": "spreads", "outcomes": [{"name": "Edmonton Oilers", "price": -110, "point": -1.5}, {"name": "Dallas Stars", "price": -110, "point": 1.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 6.0}, {"name": "Under", "price": -110, "point": 6.0}]},
+                ]},
+            ]
+        },
+        {
+            "id": "nfl_001", "sport_key": "americanfootball_nfl", "sport_title": "NFL",
+            "commence_time": "2026-09-10T23:20:00Z",
+            "home_team": "Kansas City Chiefs", "away_team": "Buffalo Bills",
+            "bookmakers": [
+                {"key": "draftkings", "title": "DraftKings", "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Kansas City Chiefs", "price": -125}, {"name": "Buffalo Bills", "price": 105}]},
+                    {"key": "spreads", "outcomes": [{"name": "Kansas City Chiefs", "price": -110, "point": -2.5}, {"name": "Buffalo Bills", "price": -110, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 47.5}, {"name": "Under", "price": -110, "point": 47.5}]},
+                ]},
+                {"key": "fanduel",    "title": "FanDuel",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Kansas City Chiefs", "price": -128}, {"name": "Buffalo Bills", "price": 108}]},
+                    {"key": "spreads", "outcomes": [{"name": "Kansas City Chiefs", "price": -112, "point": -2.5}, {"name": "Buffalo Bills", "price": -108, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -108, "point": 47.5}, {"name": "Under", "price": -112, "point": 47.5}]},
+                ]},
+                {"key": "betmgm",     "title": "BetMGM",     "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Kansas City Chiefs", "price": -120}, {"name": "Buffalo Bills", "price": 100}]},
+                    {"key": "spreads", "outcomes": [{"name": "Kansas City Chiefs", "price": -108, "point": -2.5}, {"name": "Buffalo Bills", "price": -112, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -112, "point": 47.5}, {"name": "Under", "price": -108, "point": 47.5}]},
+                ]},
+                {"key": "caesars",    "title": "Caesars",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Kansas City Chiefs", "price": -124}, {"name": "Buffalo Bills", "price": 104}]},
+                    {"key": "spreads", "outcomes": [{"name": "Kansas City Chiefs", "price": -110, "point": -2.5}, {"name": "Buffalo Bills", "price": -110, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 47.5}, {"name": "Under", "price": -110, "point": 47.5}]},
+                ]},
+                {"key": "espnbet",    "title": "ESPN Bet",   "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "Kansas City Chiefs", "price": -118}, {"name": "Buffalo Bills", "price": 102}]},
+                    {"key": "spreads", "outcomes": [{"name": "Kansas City Chiefs", "price": -105, "point": -2.5}, {"name": "Buffalo Bills", "price": -115, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -105, "point": 47.5}, {"name": "Under", "price": -115, "point": 47.5}]},
+                ]},
+            ]
+        },
+        {
+            "id": "nfl_002", "sport_key": "americanfootball_nfl", "sport_title": "NFL",
+            "commence_time": "2026-09-13T17:00:00Z",
+            "home_team": "San Francisco 49ers", "away_team": "Philadelphia Eagles",
+            "bookmakers": [
+                {"key": "draftkings", "title": "DraftKings", "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "San Francisco 49ers", "price": -140}, {"name": "Philadelphia Eagles", "price": 118}]},
+                    {"key": "spreads", "outcomes": [{"name": "San Francisco 49ers", "price": -110, "point": -2.5}, {"name": "Philadelphia Eagles", "price": -110, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 46.5}, {"name": "Under", "price": -110, "point": 46.5}]},
+                ]},
+                {"key": "fanduel",    "title": "FanDuel",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "San Francisco 49ers", "price": -144}, {"name": "Philadelphia Eagles", "price": 122}]},
+                    {"key": "spreads", "outcomes": [{"name": "San Francisco 49ers", "price": -112, "point": -2.5}, {"name": "Philadelphia Eagles", "price": -108, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -108, "point": 46.5}, {"name": "Under", "price": -112, "point": 46.5}]},
+                ]},
+                {"key": "betmgm",     "title": "BetMGM",     "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "San Francisco 49ers", "price": -136}, {"name": "Philadelphia Eagles", "price": 114}]},
+                    {"key": "spreads", "outcomes": [{"name": "San Francisco 49ers", "price": -108, "point": -2.5}, {"name": "Philadelphia Eagles", "price": -112, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -112, "point": 46.5}, {"name": "Under", "price": -108, "point": 46.5}]},
+                ]},
+                {"key": "caesars",    "title": "Caesars",    "markets": [
+                    {"key": "h2h",     "outcomes": [{"name": "San Francisco 49ers", "price": -138}, {"name": "Philadelphia Eagles", "price": 116}]},
+                    {"key": "spreads", "outcomes": [{"name": "San Francisco 49ers", "price": -110, "point": -2.5}, {"name": "Philadelphia Eagles", "price": -110, "point": 2.5}]},
+                    {"key": "totals",  "outcomes": [{"name": "Over", "price": -110, "point": 46.5}, {"name": "Under", "price": -110, "point": 46.5}]},
+                ]},
+            ]
+        },
     ]
 
 
@@ -558,7 +674,7 @@ def api_game(game_id):
 def api_arbitrage():
     fetch_all()
     arbs = [g for g in games_db.values() if g.get("arb")]
-    return jsonify({"arbs": arbs, "count": len(arbs)})
+    return jsonify({"arbs": arbs, "count": len(arbs), "history": list(arb_stack)})
 
 @app.route("/api/arb_calc")
 def api_arb_calc():
@@ -702,6 +818,45 @@ def api_best_lines():
             })
     best_lines.sort(key=lambda x: x["savings"], reverse=True)
     return jsonify({"lines": best_lines})
+
+@app.route("/api/kelly")
+def api_kelly():
+    """
+    Kelly Criterion: optimal fraction of bankroll to bet given an edge.
+    Formula: f* = (b*p - q) / b
+      b = net odds (decimal - 1), p = true win prob, q = 1 - p
+    Returns full Kelly, half Kelly (recommended), and quarter Kelly amounts.
+    """
+    odds      = int(request.args.get("odds", -110))
+    true_prob = float(request.args.get("true_prob", 52)) / 100
+    bankroll  = float(request.args.get("bankroll", 1000))
+
+    dec = american_to_decimal(odds)
+    b   = dec - 1
+    p   = true_prob
+    q   = 1 - p
+
+    kelly_f    = max(0.0, (b * p - q) / b)
+    half_kelly = kelly_f / 2
+    qtr_kelly  = kelly_f / 4
+
+    implied    = decimal_to_prob(dec)
+    edge       = round((p - implied) * 100, 2)
+
+    return jsonify({
+        "odds":           odds,
+        "decimal":        round(dec, 4),
+        "implied_prob":   round(implied * 100, 2),
+        "true_prob":      round(p * 100, 2),
+        "edge":           edge,
+        "kelly_pct":      round(kelly_f * 100, 2),
+        "half_kelly_pct": round(half_kelly * 100, 2),
+        "qtr_kelly_pct":  round(qtr_kelly * 100, 2),
+        "kelly_bet":      round(kelly_f * bankroll, 2),
+        "half_kelly_bet": round(half_kelly * bankroll, 2),
+        "qtr_kelly_bet":  round(qtr_kelly * bankroll, 2),
+        "bankroll":       bankroll,
+    })
 
 if __name__ == "__main__":
     print("\n" + "=" * 50)
